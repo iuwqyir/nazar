@@ -1,4 +1,3 @@
-import { sql } from '@vercel/postgres';
 import { Card, Title, Text } from '@tremor/react';
 import Search from './search';
 import UsersTable from './table';
