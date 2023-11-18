@@ -14,7 +14,8 @@ import {
     Icon,
     Badge,
     NumberInputProps,
-    TextInput} from '@tremor/react';
+    TextInput,
+    Switch} from '@tremor/react';
 import Link from 'next/link';
 import { BellIcon, BellSlashIcon, BoltIcon, ExclamationTriangleIcon, FireIcon, InformationCircleIcon, ChatBubbleOvalLeftEllipsisIcon, ArrowUpRightIcon, XCircleIcon, ClipboardIcon } from "@heroicons/react/24/outline";
 
@@ -259,7 +260,7 @@ export default function InboxPage() {
                                     <Text>{message.body}</Text>
                                 </AccordionHeader>
                                 <AccordionBody>
-                                    <div>{message.title} </div>
+                                    <div>{messages[0].message.title} </div>
                                 </AccordionBody>
                             </Accordion>
                         ))
@@ -280,6 +281,12 @@ export default function InboxPage() {
 
 
                 </form>
+            </Card>
+            <Card>
+                <Flex>
+                    <Button> Unsubscribe all button</Button>
+                    <Switch> Toggle Switch for preferences</Switch>
+                </Flex>
             </Card>
         </Flex>
         </div>
