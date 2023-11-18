@@ -11,7 +11,7 @@ import Image from 'next/image';
 const navigation = [
   { name: 'Dashboard', href: '/' },
   { name: 'Playground', href: '/playground' },
-  { name: 'Web3Inbox', href: '/inbox' }
+  { name: 'Notificaton Center', href: '/inbox' }
 ];
 
 function classNames(...classes: string[]) {
