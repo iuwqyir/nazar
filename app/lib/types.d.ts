@@ -71,3 +71,32 @@ export type DetectionResult = {
   }
 };
 
+export type Trace = ProviderTrace & {
+  functionName?: string;
+  isInnerHandleOp?: boolean;
+  gasUsedParsed?: number;
+  gasParsed?: number;
+};
+
+export type ProviderTrace = {
+  from: string;
+  gas: string;
+  gasUsed: string;
+  to: string;
+  input?: string;
+  output?: string;
+  calls?: Trace[];
+  value: string;
+  type: string;
+  error?: string;
+  revertReason?: string;
+};
+
+export type DecodedSingature = {
+  name: string;
+  filtered: boolean;
+};
+
+export type DecodedSignatures = {
+  [hexSignature: string]: DecodedSingature[];
+};
