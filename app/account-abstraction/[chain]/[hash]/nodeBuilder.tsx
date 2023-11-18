@@ -51,16 +51,16 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
       position: { x: 250, y: 200 }
     },
   ]
-  if (data.plugin) {
+  if (data.modules?.length) {
     nodes.push({
       id: 'plugin',
       type: 'input',
       data: {
-        link: `${chain.explorerUrl}/address/${data.plugin}`,
+        link: `${chain.explorerUrl}/address/${data.modules[0]}`,
         label: (
           <>
             <p>Module</p>
-            <p>{shortenHex(data.plugin)}</p>
+            <p>{shortenHex(data.modules[0])}</p>
           </>
         )
       },

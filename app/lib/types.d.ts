@@ -1,6 +1,7 @@
 import type { TransactionDescription } from '@ethersproject/abi';
 import type { PaymasterHandleType } from 'lib/aa/erc4337';
-import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import type { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
+import type { SafeInfoResponse } from '@safe-global/api-kit';
 
 export type EtherscanTransactionData = {
   blockHash: string;
@@ -141,9 +142,10 @@ export type Paymaster = {
 
 export type SafeData = {
   transaction: SafeMultisigTransactionResponse;
+  safeInfo: SafeInfoResponse;
   singleton: string;
   version: string;
-  plugin: string;
+  modules: string[];
   account: string;
   guard: string;
   preGuard: boolean;

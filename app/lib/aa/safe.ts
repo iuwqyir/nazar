@@ -20,11 +20,11 @@ export const enrichSafeTrace = (trace: Trace): Trace => {
 };
 
 const initSafeApi = (chain: Chain): SafeApiKit => {
-  const provider = new ethers.providers.JsonRpcProvider(chain.providerEndpoint);
+  const provider = new ethers.providers.JsonRpcProvider({ skipFetchSetup: true, url: chain.providerEndpoint });
   const ethAdapter = new EthersAdapter({
     ethers,
     signerOrProvider: provider,
-  }) as any;
+  });
   return new SafeApiKit({
     txServiceUrl: chain.safeApiUrl,
     ethAdapter,
@@ -41,22 +41,22 @@ export const getSafeData = async (
 
   const safeService = initSafeApi(chain)  
   const safeTransaction = await safeService.getTransaction(detectionResult.safe.txHash);
+  const safeInfo = await safeService.getSafeInfo(safeTransaction.safe)
 
-  let plugin = '';
-  let guard = '';
+  const definedModules = safeInfo.modules?.map(module => module.toLowerCase())
+  let modules: string[] = [];
+  const guard = safeInfo.guard !== '0x0000000000000000000000000000000000000000' ? safeInfo.guard : ''
   let preGuard = false;
   let postGuard = false;
   const handleTraceNode = (trace: Trace): Trace => {
-    if (trace.functionName?.startsWith('execTransactionFromModule') && !plugin) {
-      plugin = trace.from
+    if (trace.functionName?.startsWith('execTransactionFromModule') && definedModules?.includes(trace.from)) {
+      modules.push(trace.from)
     }
     if (trace.functionName?.startsWith('preExecCheck')) {
       preGuard = true;
-      guard = trace.to;
     }
     if (trace.functionName?.startsWith('postExecCheck')) {
       postGuard = true;
-      guard = trace.to;
     }
     if (trace.calls?.length) {
       for (const call of trace.calls) {
@@ -68,9 +68,10 @@ export const getSafeData = async (
   handleTraceNode(trace);
   return {
     transaction: safeTransaction,
+    safeInfo,
     singleton: detectionResult.safe.singleton,
     version: detectionResult.version,
-    plugin,
+    modules,
     guard,
     account: transaction.to,
     preGuard,

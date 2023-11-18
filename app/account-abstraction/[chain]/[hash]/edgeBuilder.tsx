@@ -24,7 +24,7 @@ export const buildSafeEdges = (data?: SafeData): Edge[] => {
       animated: true
     }
   ]
-  if (data.plugin) {
+  if (data.modules?.length) {
     edges.push({
       id: "e-plugin-safeproxy",
       source: "plugin",
