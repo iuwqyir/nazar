@@ -2,6 +2,7 @@ import { chains } from "../../../../lib/chains"
 import { findTransactionByHash } from 'lib/transactions'
 import { detectAccountAbstractionTransaction } from "lib/aa/detector"
 import { fetchAccountAbstractionTrace as fetchTrace } from "lib/traces"
+import { fetchBlockTimestamp } from "lib/blocks"
 
 export const dynamic = 'force-dynamic' // defaults to force-static
 
@@ -23,6 +24,7 @@ export async function GET(request: Request, { params }: GetProps) {
     return Response.json({ error: 'not a account abstraction transaction' });
 
   const { trace, innerOperationFailed } = await fetchTrace(chain, params.hash, detectionResult.type);
+  const timestamp = await fetchBlockTimestamp(chain, transaction.blockNumber);
 
-  return Response.json({ transaction, innerOperationFailed, trace, detectionResult })
+  return Response.json({ timestamp, transaction, innerOperationFailed, trace, detectionResult })
 }
