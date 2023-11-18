@@ -20,7 +20,7 @@ export type LinkTypesProps = {
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
-  data: TreeNode;
+  data: any;
 };
 
 export default function TransactionFlow({
@@ -60,6 +60,23 @@ export default function TransactionFlow({
     }
   }
 
+  const getStrokeColor = (node: any, index: any) => {
+    // console.log('🍊', node.source.data.name)
+    // console.log(checkForError(node))
+    // return checkForError(node)
+
+    // checkForError(node); // Add parent references
+
+    // return checkForError(node);
+    // if (node.source.data.error || node.source.data.parent?.data?.error) return 'red'
+    // if (node.source.data.revertReason || node.source.data.parent?.data?.revertReason) return 'red'
+    // let tmpIndex = index
+    // // while (tmpIndex > 0) {
+    //     // if (data.children[tmpIndex].data.error) return 'red'
+    // // }
+    return 'black'
+  }
+
   const LinkComponent = getLinkComponent({ layout, linkType, orientation });
 
   return totalWidth < 10 ? null : (
@@ -85,16 +102,17 @@ export default function TransactionFlow({
           >
             {(tree) => (
               <Group top={origin.y} left={origin.x}>
-                {tree.links().map((link, i) => (
-                  <LinkComponent
-                    key={i}
-                    data={link}
-                    percent={stepPercent}
-                    stroke="rgb(254,110,158,0.6)"
-                    strokeWidth="1"
-                    fill="none"
-                  />
-                ))}
+                {tree.links().map((link, i, h) => {
+                    return (<LinkComponent
+                      key={i}
+                      data={link}
+                      percent={stepPercent}
+                    //   stroke={getStrokeColor(h[i], i)}
+                    stroke='black'
+                      strokeWidth={h[i].source.data.gasParsed / 100000}
+                      fill="none"
+                    />)
+                })}
 
                 {tree.descendants().map((node, key) => {
                   const width = 40;
@@ -135,6 +153,7 @@ export default function TransactionFlow({
                           x={-width / 2}
                           fill="#fff"
                           stroke={node.data.children ? '#03c0dc' : '#26deb0'}
+                        //   strokeWidth={node.data.gasParsed / 100000}
                           strokeWidth={1}
                           strokeDasharray={node.data.children ? '0' : '2,2'}
                           strokeOpacity={node.data.children ? 1 : 0.6}
@@ -146,22 +165,22 @@ export default function TransactionFlow({
                           }}
                         />
                       )}
-                      <text
-                        dy=".33em"
-                        fontSize={9}
-                        fontFamily="Arial"
-                        textAnchor="middle"
-                        style={{ pointerEvents: 'none' }}
-                        fill={
-                          node.depth === 0
-                            ? '#71248e'
-                            : node.children
-                            ? 'black'
-                            : '#26deb0'
-                        }
-                      >
-                        {node.data.name}
-                      </text>
+                          <text
+                            dy=".33em"
+                            fontSize={9}
+                            fontFamily="Arial"
+                            textAnchor="middle"
+                            style={{ pointerEvents: 'none' }}
+                            fill={
+                              node.depth === 0
+                                ? '#71248e'
+                                : node.children
+                                ? 'black'
+                                : '#26deb0'
+                            }
+                          >
+                            {node.data.type}
+                          </text>
                     </Group>
                   );
                 })}
