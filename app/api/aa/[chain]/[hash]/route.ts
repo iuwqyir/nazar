@@ -1,3 +1,4 @@
+import { chains } from "../../../../lib/chains"
 export const dynamic = 'force-dynamic' // defaults to force-static
 
 type GetProps = {
