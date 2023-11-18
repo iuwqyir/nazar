@@ -150,22 +150,16 @@ export default function Page({ params: { chain, hash } }: PageProps) {
           </Flex>
         </Card>
         <ERC4337Component data={data.erc4337} chain={data.chain} />
-
-        {/* New Row with One Column */}
-        <div className="col-span-2">
-          {' '}
-          {/* This makes the card span across two columns */}
-          <Card key="new-card">
-                  <Title>Interaction Flow</Title>
-              <ParentSize>
-                {({ width, height }) => (
-                  <TransactionFlow width={width} height={500} data={renameKeys(data.trace)}/>
-                )}
-              </ParentSize>
-          </Card>
-        </div>
       </Grid>
       <Visualization data={data} />
+      <Card className="mt-8">
+              <Title>Interaction Flow</Title>
+          <ParentSize>
+            {({ width, height }) => (
+              <TransactionFlow width={width} height={500} data={renameKeys(data.trace)}/>
+            )}
+          </ParentSize>
+      </Card>
       <pre>
         {JSON.stringify(data, null, 2)}
       </pre>
