@@ -1,8 +1,9 @@
 "use client"
 import { FC, useEffect, useState } from 'react';
-import { Card, Subtitle, Text, Title, BarList, Flex, Grid } from '@tremor/react';
+import { MdContentCopy, MdCheckCircle } from 'react-icons/md';
+import { Card, Subtitle, Text, Title, Flex, Grid } from '@tremor/react';
 import Loader from 'app/components/loader';
-import { AccountAbstractionData, Chain, ERC4337Data, TransactionError } from 'lib/types';
+import { AccountAbstractionData, Chain, ERC4337Data, SafeData, TransactionError } from 'lib/types';
 import React from 'react'
 import { ethers, BigNumber } from 'ethers';
 import { formatDistanceToNowStrict } from 'date-fns';
@@ -145,6 +146,7 @@ export default function Page({ params: { chain, hash } }: PageProps) {
           </Flex>
         </Card>
         <ERC4337Component data={data.erc4337} chain={data.chain} />
+        <SafeComponent data={data.safe} />
       </Grid>
       <Visualization data={data} />
       <Card className="mt-8">
@@ -204,6 +206,43 @@ const ERC4337Component: FC<{ chain: Chain, data?: ERC4337Data }> = ({ chain, dat
   )
 }
 
+const SafeComponent: FC<{ data?: SafeData }> = ({ data }) => {
+  if (!data) return null
+
+  return (
+    <Card key='safe'>
+      <Flex
+        justifyContent="start"
+        alignItems="baseline"
+        className="space-x-2"
+      >
+        <Title>Safe Transaction</Title>
+        <CopyToClipboardText text={data.transaction.safeTxHash} />
+      </Flex>
+      <Flex className="mt-6">
+        <Text>Nonce</Text>
+        <Text className='text-right'>{data.transaction.nonce}</Text>
+      </Flex>
+      <Flex className="mt-6">
+        <Text>Confirmations</Text>
+        <Text className='text-right'>{data.transaction.confirmations?.length || 0}</Text>
+      </Flex>
+      <Flex className="mt-6">
+        <Text>Confirmations Required</Text>
+        <Text className='text-right'>{data.transaction.confirmationsRequired || 0}</Text>
+      </Flex>
+      <Flex className="mt-6">
+        <Text>Origin</Text>
+        <Text className='text-right'>{data.transaction.origin}</Text>
+      </Flex>
+      <Flex className="mt-6">
+        <Text>Trusted</Text>
+        <Text className='text-right'>{data.transaction.trusted ? 'True' : 'False'}</Text>
+      </Flex>
+    </Card>
+  )
+}
+
 const Status: FC<{ error?: TransactionError, isWarning: boolean }> = ({ error, isWarning }) => {
   let className = 'text-green-600', text = 'Success'
   if (error) {
@@ -217,3 +256,24 @@ const Status: FC<{ error?: TransactionError, isWarning: boolean }> = ({ error, i
     <Text className={`text-right ${className}`}>{text}</Text>
   )
 }
+
+const CopyToClipboardText = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+
+  const copyTextToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
+  return (
+    <div className='cursor-pointer flex items-center' onClick={copyTextToClipboard}>
+      <Subtitle className='mr-2'>{shortenHex(text)}</Subtitle>
+      {copied ? <MdCheckCircle color="green" /> : <MdContentCopy />}
+    </div>
+  );
+};
