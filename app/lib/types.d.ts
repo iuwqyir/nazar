@@ -1,5 +1,6 @@
 import type { TransactionDescription } from '@ethersproject/abi';
 import type { PaymasterHandleType } from 'lib/aa/erc4337';
+import { SafeMultisigTransactionResponse } from '@safe-global/safe-core-sdk-types';
 
 export type EtherscanTransactionData = {
   blockHash: string;
@@ -135,4 +136,29 @@ export type Paymaster = {
   actualGasCost?: string; // if this exists, this means the paymaster validation succeeded
   actualGasCostInUSD?: number;
   type: PaymasterHandleType;
+};
+
+export type SafeData = {
+  transaction: SafeMultisigTransactionResponse;
+  singleton: string;
+  version: string;
+  plugin: string;
+  account: string;
+  guard: string;
+  preGuard: boolean;
+  postGuard: boolean;
+};
+
+export type AccountAbstractionData = {
+  transaction: EtherscanTransactionData
+  timestamp: number;
+  fee: string;
+  feeInUSD: number;
+  trace: Trace;
+  chain: Chain;
+  innerOperationFailed: boolean;
+  detectionResult: DetectionResult;
+  errorData?: TransactionError;
+  erc4337?: ERC4337Data;
+  safe?: SafeData;
 };

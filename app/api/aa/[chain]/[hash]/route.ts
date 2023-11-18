@@ -5,6 +5,8 @@ import { extractErrorDataFromTrace, fetchAccountAbstractionTrace as fetchTrace }
 import { fetchBlockTimestamp } from "lib/blocks"
 import { getHistoricalPriceCoefficient } from "lib/prices"
 import { getERC4337Data } from "lib/aa/erc4337"
+import { getSafeData } from "lib/aa/safe"
+import { AccountAbstractionData } from "lib/types"
 
 export const dynamic = 'force-dynamic' // defaults to force-static
 
@@ -34,5 +36,19 @@ export async function GET(request: Request, { params }: GetProps): Promise<Respo
   const errorData = extractErrorDataFromTrace(trace, detectionResult.ABI)
 
   const erc4337 = getERC4337Data(transaction, detectionResult, trace, priceCoefficient)
-  return Response.json({ timestamp, transaction, errorData, fee, innerOperationFailed, trace, detectionResult, erc4337 })
+  const safe = await getSafeData(chain, transaction, trace, detectionResult)
+  const data: AccountAbstractionData = {
+    transaction,
+    timestamp,
+    fee: fee.inWei.toHexString(),
+    feeInUSD: fee.inUSD,
+    trace,
+    chain,
+    innerOperationFailed,
+    detectionResult,
+    errorData,
+    erc4337,
+    safe
+  }
+  return Response.json({ data })
 }
