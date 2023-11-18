@@ -44,7 +44,7 @@ const Visualization: FC<{ data?: AccountAbstractionData }> = ({ data }) => {
   return (
     <Card className="mt-8">
       <Title>Components</Title>
-      <div style={{ width: '80vw', height: '50vh' }}>
+      <div style={{ width: '100%', height: '50vh' }}>
 
         <ReactFlow
           nodes={nodes}
