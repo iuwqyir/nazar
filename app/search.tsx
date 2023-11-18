@@ -32,7 +32,7 @@ export default function Search({ disabled }: { disabled?: boolean }) {
   }, [searchTerm]);
 
   function renderDropdownElements() {
-    return contractsList.map((item, index: any) => (
+    return contractsList.map((item: any, index: any) => (
         <li
           key={index}
           className="p-2 hover:bg-gray-100 cursor-pointer"
