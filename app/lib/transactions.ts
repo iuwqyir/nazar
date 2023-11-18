@@ -1,7 +1,8 @@
 import type { Interface, TransactionDescription } from '@ethersproject/abi';
 import axios from 'axios';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import type { Chain, EtherscanReceiptLog, EtherscanTransactionData, EtherscanTransactionReceipt } from 'lib/types';
+import { convertETHToUSD } from 'lib/prices';
 
 export const findTransactionByHash = async (
   chain: Chain,
@@ -55,4 +56,10 @@ export const getTransactionReceipt = async (chain: Chain, hash: string): Promise
       address: log.address?.toLowerCase()
     }))
   };
+}
+
+export const calculateTransactionFee = (gasPrice: string, gasUsed: string, priceCoefficient?: number): { inWei: BigNumber, inUSD: number } => {
+  const inWei = BigNumber.from(gasUsed || 0).mul(BigNumber.from(gasPrice || 0));
+  const inUSD = convertETHToUSD(inWei, priceCoefficient);
+  return { inWei, inUSD }
 }

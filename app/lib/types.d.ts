@@ -1,4 +1,5 @@
-import { TransactionDescription } from '@ethersproject/abi';
+import type { TransactionDescription } from '@ethersproject/abi';
+import type { PaymasterHandleType } from 'lib/aa/erc4337';
 
 export type EtherscanTransactionData = {
   blockHash: string;
@@ -71,3 +72,67 @@ export type DetectionResult = {
   }
 };
 
+export type Trace = ProviderTrace & {
+  functionName?: string;
+  isInnerHandleOp?: boolean;
+  gasUsedParsed?: number;
+  gasParsed?: number;
+};
+
+export type ProviderTrace = {
+  from: string;
+  gas: string;
+  gasUsed: string;
+  to: string;
+  input?: string;
+  output?: string;
+  calls?: Trace[];
+  value: string;
+  type: string;
+  error?: string;
+  revertReason?: string;
+};
+
+export type DecodedSingature = {
+  name: string;
+  filtered: boolean;
+};
+
+export type DecodedSignatures = {
+  [hexSignature: string]: DecodedSingature[];
+};
+
+export type TransactionError = {
+  message: string;
+  decoded: string;
+};
+
+export type ERC4337Data = {
+  userOps: UserOp[];
+  entryPoint: string;
+  bundler: string;
+  aggregator?: string;
+  version: string;
+  bundlerCompensation: string;
+  bundlerCompensationInUSD: number;
+};
+
+export type UserOp = {
+  sender: string;
+  nonce: number;
+  accountFactory?: string;
+  callData: string;
+  callGasLimit: number;
+  verificationGasLimit: number;
+  preVerificationGas: number;
+  paymasterAndData: string;
+  signature: string;
+  paymaster?: Paymaster;
+};
+
+export type Paymaster = {
+  address: string;
+  actualGasCost?: string; // if this exists, this means the paymaster validation succeeded
+  actualGasCostInUSD?: number;
+  type: PaymasterHandleType;
+};
