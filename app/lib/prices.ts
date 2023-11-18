@@ -1,6 +1,5 @@
 import axios from 'axios';
 import type { Chain } from 'lib/types';
-import { chainCurrencies } from 'lib/chains';
 import { BigNumber as DecimalBigNumber } from 'bignumber.js';
 import { BigNumber, ethers } from 'ethers';
 
@@ -11,7 +10,7 @@ export const getHistoricalPriceCoefficient = async (
   chain: Chain,
   timestampInSeconds: number,
 ): Promise<number | undefined> => {
-  const tokenTicker = chainCurrencies[chain.name];
+  const tokenTicker = chain.currency
   try {
     const response = await axios.get(PRICE_API_URL, {
       params: {

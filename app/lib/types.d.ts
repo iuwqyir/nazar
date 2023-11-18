@@ -60,6 +60,7 @@ export type Chain = {
   explorerApiKey: string
   safeApiUrl: string
   providerEndpoint: string
+  currency: string
 }
 
 export type DetectionResult = {

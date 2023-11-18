@@ -8,6 +8,7 @@ export const chains: { [key: string]: Chain } = {
     explorerApiKey: process.env.ETHEREUM_EXPLORER_API_KEY!,
     safeApiUrl: 'https://safe-transaction-mainnet.safe.global',
     providerEndpoint: process.env.ETHEREUM_PROVIDER_ENDPOINT!,
+    currency: 'ETH'
   },
   polygon: {
     name: 'polygon',
@@ -16,6 +17,7 @@ export const chains: { [key: string]: Chain } = {
     explorerApiKey: process.env.POLYGON_EXPLORER_API_KEY!,
     safeApiUrl: 'https://safe-transaction-polygon.safe.global',
     providerEndpoint: process.env.POLYGON_PROVIDER_ENDPOINT!,
+    currency: 'MATIC'
   },
 //   base: {
 //     name: 'base',
@@ -24,6 +26,7 @@ export const chains: { [key: string]: Chain } = {
 //     explorerApiKey: process.env.BASE_EXPLORER_API_KEY!,
 //     safeApiUrl: 'https://safe-transaction-base.safe.global',
 //     providerEndpoint: process.env.BASE_PROVIDER_ENDPOINT!,
+//     currency: 'ETH'
 //   },
   bnb: {
     name: 'bnb',
@@ -32,6 +35,7 @@ export const chains: { [key: string]: Chain } = {
     explorerApiKey: process.env.BNB_EXPLORER_API_KEY!,
     safeApiUrl: 'https://safe-transaction-bsc.safe.global',
     providerEndpoint: process.env.BNB_PROVIDER_ENDPOINT!,
+    currency: 'BNB'
   },
   optimism: {
     name: 'optimism',
@@ -40,6 +44,7 @@ export const chains: { [key: string]: Chain } = {
     explorerApiKey: process.env.OPTIMISM_EXPLORER_API_KEY!,
     safeApiUrl: 'https://safe-transaction-optimism.safe.global',
     providerEndpoint: process.env.OPTIMISM_PROVIDER_ENDPOINT!,
+    currency: 'ETH'
   },
 //   celo: {
 //     name: 'celo',
@@ -48,6 +53,7 @@ export const chains: { [key: string]: Chain } = {
 //     explorerApiKey: process.env.CELO_EXPLORER_API_KEY!,
 //     safeApiUrl: 'https://safe-transaction-celo.safe.global',
 //     providerEndpoint: process.env.CELO_PROVIDER_ENDPOINT!,
+//     currency: 'CELO'
 //   },
   arbitrum: {
     name: 'arbitrum',
@@ -56,6 +62,7 @@ export const chains: { [key: string]: Chain } = {
     explorerApiKey: process.env.ARBITRUM_EXPLORER_API_KEY!,
     safeApiUrl: 'https://safe-transaction-arbitrum.safe.global',
     providerEndpoint: process.env.ARBITRUM_PROVIDER_ENDPOINT!,
+    currency: 'ETH'
   },
   gnosis: {
     name: 'gnosis',
@@ -64,16 +71,6 @@ export const chains: { [key: string]: Chain } = {
     explorerApiKey: process.env.GNOSIS_EXPLORER_API_KEY!,
     safeApiUrl: 'https://safe-transaction-gnosis-chain.safe.global',
     providerEndpoint: process.env.GNOSIS_PROVIDER_ENDPOINT!,
+    currency: 'XDAI'
   },
-};
-
-export const chainCurrencies: { [chain: string]: string } = {
-  [chains.ethereum.name]: 'ETH',
-  [chains.polygon.name]: 'MATIC',
-  [chains.bnb.name]: 'BNB',
-//   [chains.base.name]: 'ETH',
-  [chains.optimism.name]: 'ETH',
-//   [chains.celo.name]: 'CELO',
-  [chains.arbitrum.name]: 'ETH',
-//   [chains.gnosis.name]: 'XDAI',
 };
