@@ -26,7 +26,7 @@ export default function RootLayout({
               </Suspense>
               {children}
               <Analytics />
-            </Web3ModalProvider>
+          </Web3ModalProvider>
         </body>
       </html>
   );
