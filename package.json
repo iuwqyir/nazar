@@ -27,6 +27,7 @@
     "@web3inbox/widget-react": "^0.6.25",
     "@web3modal/ethers5": "^3.3.2",
     "@web3modal/wagmi": "^3.3.2",
+    "add": "^2.0.6",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.2",
     "bignumber.js": "^9.1.2",
@@ -44,6 +45,7 @@
     "react-dom": "18.2.0",
     "server-only": "^0.0.1",
     "tailwindcss": "^3.3.5",
+    "toast": "^0.5.4",
     "typescript": "5.2.2",
     "viem": "^1.19.3",
     "wagmi": "^1.4.7"
