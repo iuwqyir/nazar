@@ -17,7 +17,7 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
         label: (
           <>
             Caller
-            <p>{shortenHex(data.singleton)}</p>
+            <p>{shortenHex(data.transaction.executor!)}</p>
           </>
         )
       },
@@ -30,7 +30,7 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
         label: (
           <>
             Safe Proxy
-            <p>{shortenHex(data.singleton)}</p>
+            <p>{shortenHex(data.transaction.safe)}</p>
           </>
         )
       },
