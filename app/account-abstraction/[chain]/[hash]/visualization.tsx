@@ -14,16 +14,16 @@ import ReactFlow, {
   useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { buildERC4337Nodes } from './nodeBuilder';
-import { buildERC4337Edges } from './edgeBuilder';
+import { buildERC4337Nodes, buildSafeNodes } from './nodeBuilder';
+import { buildERC4337Edges, buildSafeEdges } from './edgeBuilder';
 
 const edgeTypes = {
   'mempool-edge': MempoolEdge,
 };
 
 const Visualization: FC<{ data?: AccountAbstractionData }> = ({ data }) => {
-  const initialNodes = buildERC4337Nodes(data?.chain!, data?.transaction.hash!, data?.erc4337)
-  const initialEdges = buildERC4337Edges(data?.erc4337)
+  const initialNodes = data?.erc4337 ? buildERC4337Nodes(data?.chain!, data?.transaction.hash!, data?.erc4337) : buildSafeNodes(data?.chain!, data?.safe)
+  const initialEdges = data?.erc4337 ? buildERC4337Edges(data?.erc4337) : buildSafeEdges(data?.safe)
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onConnect = useCallback(
