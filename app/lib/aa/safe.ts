@@ -47,8 +47,8 @@ export const getSafeData = async (
   let preGuard = false;
   let postGuard = false;
   const handleTraceNode = (trace: Trace): Trace => {
-    if (trace.functionName?.startsWith('execTransactionFromModule')) {
-      plugin = trace.from;
+    if (trace.functionName?.startsWith('execTransactionFromModule') && !plugin) {
+      plugin = trace.from
     }
     if (trace.functionName?.startsWith('preExecCheck')) {
       preGuard = true;
