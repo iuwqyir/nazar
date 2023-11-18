@@ -1,4 +1,4 @@
-import { chains } from "../../../../lib/chains"
+import { chains } from "lib/chains"
 import { findTransactionByHash } from 'lib/transactions'
 import { detectAccountAbstractionTransaction } from "lib/aa/detector"
 import { fetchAccountAbstractionTrace as fetchTrace } from "lib/traces"
