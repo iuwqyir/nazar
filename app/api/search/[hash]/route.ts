@@ -39,7 +39,6 @@ const getTransactionInfo = async (
       txhash: hash,
     },
   });
-  console.log('💙', response.data.result)
   const transaction = response?.data?.result;
   if (transaction?.hash !== hash) return { exists: false, isUserOp: false };
   if (transaction?.to !== ENTRYPOINT_V6_ADDRESS) return { exists: true, isUserOp: false };
@@ -78,8 +77,10 @@ export async function GET(request: Request, { params }: GetProps) {
   
     try {
       const result = await batchChainCalls(txHash, supportedChains);
-      return Response.json({ data: result });
+      const filteredResult = result.filter((r) => r.isUserOp === true)
+      return Response.json({ data: filteredResult });
     } catch (err: any) {
+      console.log(err)
       return Response.json({ error: err.message });
     }
 }

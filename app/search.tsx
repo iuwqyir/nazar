@@ -9,6 +9,8 @@ export default function Search({ disabled }: { disabled?: boolean }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
+  const [dropdownFetched, setDropdownFetched] = useState(false);
+  const [contractsList, setContractsList] = useState([])
 
   function handleSearch(term: string) {
     setSearchTerm(term);
@@ -16,42 +18,53 @@ export default function Search({ disabled }: { disabled?: boolean }) {
   }
 
   useEffect(() => {
-    if (searchTerm.length > 10) {
-        setShowDropdown(true)
-        setShowLoading(true)
-    } 
+    if (searchTerm.length > 10 && !dropdownFetched) {
+      setShowLoading(true);
+      getDropDownElements().then((response) => {
+
+          setDropdownFetched(true); // Indicate that dropdown elements have been fetched
+      })
+    }
+
+    if (searchTerm.length <= 10 || contractsList.length === 0) {
+      setDropdownFetched(false); // Reset when searchTerm is less than or equal to 10
+    }
   }, [searchTerm]);
 
+  function renderDropdownElements() {
+    return contractsList.map((item, index: any) => (
+        <li
+          key={index}
+          className="p-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => handleDropdownItemClick(item.hash, item.chain.name)}
+        >
+          {item.hash}
+        </li>
+      ));
+  }
+
   function getDropDownElements() {
-    fetch(`/api/search/${searchTerm}`, {
+    return fetch(`/api/search/${searchTerm}`, {
       headers: {
         'Content-Type': 'application/json'
       }
     }).then((result) => {
       result.json().then((contractsList) => {
         setShowLoading(false)
-        return contractsList.map((item, index) => (
-          <li
-            key={index}
-            className="p-2 hover:bg-gray-100 cursor-pointer"
-            onClick={() => handleDropdownItemClick(item.hash)}
-          >
-            {item.hash}
-          </li>
-        ));
+        if (contractsList?.data) setContractsList(contractsList.data)
       });
     }).catch(error => {
         console.error('Error:', error);
       });
   }
 
-  function handleDropdownItemClick(item: string) {
+  function handleDropdownItemClick(hash: string, chain: string) {
     // http://localhost:3001/account-abstraction/chain/hash
-    router.push(`/account-abstraction/ethereum/${item}`); // Navigate to the path
+    router.push(`/account-abstraction/${chain}/${hash}`); // Navigate to the path
   }
 
   return (
-    <div className="relative mt-5 max-w-xl mx-auto">
+    <div className="relative mt-5 max-w-prose mx-auto">
       <label htmlFor="search" className="sr-only">
         Search
       </label>
@@ -91,7 +104,7 @@ export default function Search({ disabled }: { disabled?: boolean }) {
       {/* Dropdown Menu */}
       {showDropdown && (
         <div className="absolute top-full mt-2 w-full rounded-md shadow-lg bg-white z-50">
-          <ul>{getDropDownElements()}</ul>
+          <ul>{renderDropdownElements()}</ul>
         </div>
       )}
     </div>
