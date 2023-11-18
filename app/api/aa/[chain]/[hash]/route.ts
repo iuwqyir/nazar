@@ -4,6 +4,7 @@ import { detectAccountAbstractionTransaction } from "lib/aa/detector"
 import { extractErrorDataFromTrace, fetchAccountAbstractionTrace as fetchTrace } from "lib/traces"
 import { fetchBlockTimestamp } from "lib/blocks"
 import { getHistoricalPriceCoefficient } from "lib/prices"
+import { getERC4337Data } from "lib/aa/erc4337"
 
 export const dynamic = 'force-dynamic' // defaults to force-static
 
@@ -32,5 +33,6 @@ export async function GET(request: Request, { params }: GetProps): Promise<Respo
   const fee = calculateTransactionFee(transaction.gasPrice, trace.gasUsed, priceCoefficient)
   const errorData = extractErrorDataFromTrace(trace, detectionResult.ABI)
 
-  return Response.json({ timestamp, transaction, errorData, fee, innerOperationFailed, trace, detectionResult })
+  const erc4337 = getERC4337Data(transaction, detectionResult)
+  return Response.json({ timestamp, transaction, errorData, fee, innerOperationFailed, trace, detectionResult, erc4337 })
 }

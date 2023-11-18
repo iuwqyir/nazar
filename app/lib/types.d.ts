@@ -105,3 +105,23 @@ export type TransactionError = {
   message: string;
   decoded: string;
 };
+
+export type ERC4337Data = {
+  userOps: UserOp[];
+  entryPoint: string;
+  bundler: string;
+  aggregator?: string;
+  version: string;
+};
+
+export type UserOp = {
+  sender: string;
+  nonce: number;
+  accountFactory?: string;
+  callData: string;
+  callGasLimit: number;
+  verificationGasLimit: number;
+  preVerificationGas: number;
+  paymasterAndData: string;
+  signature: string;
+};
