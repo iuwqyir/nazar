@@ -9,6 +9,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import TransactionFlow from 'app/components/transactionFlow';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 import Visualization from './visualization'
+import { shortenHex } from 'lib/util';
 
 type PageProps = {
   params: {
@@ -21,12 +22,6 @@ type Response = {
   data?: AccountAbstractionData
   error?: string
 }
-
-const shortenHex = (hex: string) => {
-  if (!hex) return '';
-  if (hex.length <= 12) return hex;
-  return hex.substring(0, 6) + '...' + hex.slice(-4);
-};
 
 const formatUSD = (dollarAmount: number): string => {
   const currencyFormatter = new Intl.NumberFormat('en-US', {

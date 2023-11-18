@@ -1,6 +1,7 @@
 'use client';
 
 import { Chain, ERC4337Data, SafeData } from 'lib/types';
+import { shortenHex } from 'lib/util';
 import { Position, Node } from "reactflow";
 
 export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
@@ -15,6 +16,7 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
         label: (
           <>
             Caller
+            <p>{shortenHex(data.singleton)}</p>
           </>
         )
       },
@@ -27,6 +29,7 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
         label: (
           <>
             Safe Proxy
+            <p>{shortenHex(data.singleton)}</p>
           </>
         )
       },
@@ -39,7 +42,8 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
         link: `${chain.explorerUrl}/address/${data.singleton}`,
         label: (
           <>
-            {`Singleton ${data.version || ''}`}
+            <p>{`Singleton ${data.version || ''}`}</p>
+            <p>{shortenHex(data.singleton)}</p>
           </>
         )
       },
@@ -54,7 +58,8 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
         link: `${chain.explorerUrl}/address/${data.plugin}`,
         label: (
           <>
-            Module
+            <p>Module</p>
+            <p>{shortenHex(data.plugin)}</p>
           </>
         )
       },
@@ -73,7 +78,8 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
           link: `${chain.explorerUrl}/address/${to}`,
           label: (
             <>
-              Contract
+              <p>Contract</p>
+              <p>{shortenHex(to)}</p>
             </>
           )
         },
@@ -96,7 +102,7 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
         link: `${chain.explorerUrl}/tx/${hash}`,
         label: (
           <>
-            User Operation
+            <p>User Operation</p>
           </>
         )
       },
@@ -108,7 +114,8 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
         link: `${chain.explorerUrl}/address/${data.bundler}`,
         label: (
           <>
-            Bundler
+            <p>Bundler</p>
+            <p>{shortenHex(data.bundler)}</p>
           </>
         )
       },
@@ -120,7 +127,8 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
         link: `${chain.explorerUrl}/address/${data.entryPoint}`,
         label: (
           <>
-            {`EntryPoint ${data.version || ''}`}
+            <p>{`EntryPoint ${data.version || ''}`}</p>
+            <p>{shortenHex(data.entryPoint)}</p>
           </>
         )
       },
@@ -133,7 +141,8 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
         link: `${chain.explorerUrl}/address/${userOp.sender}`,
         label: (
           <>
-            Smart Account
+            <p>Smart Account</p>
+            <p>{shortenHex(userOp.sender)}</p>
           </>
         )
       },
@@ -146,7 +155,10 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
       data: {
         link: `${chain.explorerUrl}/address/${userOp.accountFactory}`,
         label: (
-          <>Account Factory</>
+          <>
+            <p>Account Factory</p>
+            <p>{shortenHex(userOp.accountFactory)}</p>
+          </>
         )
       },
       style: {
@@ -163,9 +175,12 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
       id: 'paymaster',
       type: 'output',
       data: {
-        link: `${chain.explorerUrl}/address/${userOp.paymaster}`,
+        link: `${chain.explorerUrl}/address/${userOp.paymaster.address}`,
         label: (
-          <>Paymaster</>
+          <>
+            <p>Paymaster</p>
+            <p>{shortenHex(userOp.paymaster.address)}</p>
+          </>
         )
       },
       position: { x: 450, y: 300 },
