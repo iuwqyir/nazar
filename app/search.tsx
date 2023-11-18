@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/navigation';
+import Loader from './components/loader';
 
 export default function Search({ disabled }: { disabled?: boolean }) {
   const router = useRouter();
@@ -93,10 +94,7 @@ export default function Search({ disabled }: { disabled?: boolean }) {
       {showLoading && (
           <div className="absolute w-full top-full mt-2">
           <div className="absolute top-full mt-2 w-full rounded-md shadow-lg bg-white z-50">
-            <div className="flex items-center justify-center p-2">
-              <div className="animate-spin w-4 h-4 border-t-2 border-b-2 border-zinc-600 dark:border-zinc-500 rounded-full" />
-              <span className="ml-2 text-zinc-900 dark:text-zinc-300">Loading...</span>
-            </div>
+            <Loader />
           </div>
         </div>
       )}
