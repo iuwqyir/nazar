@@ -1,5 +1,7 @@
 import { DetectionResult, ERC4337Data, EtherscanTransactionData, Trace, UserOp } from "lib/types";
 import { AccountAbstractionType } from "./detector";
+import { BigNumber } from "ethers";
+import { convertETHToUSD } from "lib/prices";
 
 const OP_HANDLE_FUNCTION_NAME = 'innerHandleOp';
 
@@ -21,6 +23,8 @@ export const enrichERC4337Trace = (trace: Trace): Trace => {
 export const getERC4337Data = (
   transaction: EtherscanTransactionData,
   detectionResult: DetectionResult,
+  trace: Trace,
+  priceCoefficient: number | undefined
 ): ERC4337Data | undefined => {
   if (detectionResult.type !== AccountAbstractionType.ERC4337) return;
 
@@ -43,14 +47,34 @@ export const getERC4337Data = (
 
   const bundler = detectionResult.decodedTransaction.args?.beneficiary?.toLowerCase();
   const entryPoint = transaction.to;
+  const bundlerCompensation = extractBundlerCompensation(transaction, trace, entryPoint, bundler);
+  const bundlerCompensationInUSD = convertETHToUSD(bundlerCompensation, priceCoefficient);
 
   return {
     version: detectionResult.version,
     userOps,
     entryPoint,
     bundler,
+    bundlerCompensation: bundlerCompensation.toHexString(),
+    bundlerCompensationInUSD
   };
 }
 
 const extractAddressFromBeginning = (data: string): string | undefined =>
   data !== '0x' ? data.slice(0, 42)?.toLowerCase() : undefined;
+
+const extractBundlerCompensation = (
+  transaction: EtherscanTransactionData,
+  txTrace: Trace,
+  entryPoint: string,
+  bundler: string,
+): BigNumber => {
+  const txFee = BigNumber.from(txTrace?.gasUsed).mul(transaction.gasPrice);
+  for (const trace of txTrace.calls || []) {
+    // bundler refund is always on the first level after handleOps
+    if (trace.from === entryPoint && trace.to === bundler && trace.value) {
+      return BigNumber.from(trace.value).sub(txFee);
+    }
+  }
+  return BigNumber.from(0).sub(txFee);
+};

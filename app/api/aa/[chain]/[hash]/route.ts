@@ -33,6 +33,6 @@ export async function GET(request: Request, { params }: GetProps): Promise<Respo
   const fee = calculateTransactionFee(transaction.gasPrice, trace.gasUsed, priceCoefficient)
   const errorData = extractErrorDataFromTrace(trace, detectionResult.ABI)
 
-  const erc4337 = getERC4337Data(transaction, detectionResult)
+  const erc4337 = getERC4337Data(transaction, detectionResult, trace, priceCoefficient)
   return Response.json({ timestamp, transaction, errorData, fee, innerOperationFailed, trace, detectionResult, erc4337 })
 }

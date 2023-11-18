@@ -112,6 +112,8 @@ export type ERC4337Data = {
   bundler: string;
   aggregator?: string;
   version: string;
+  bundlerCompensation: string;
+  bundlerCompensationInUSD: number;
 };
 
 export type UserOp = {
