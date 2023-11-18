@@ -1,3 +1,5 @@
+import { TransactionDescription } from '@ethersproject/abi';
+
 export type EtherscanTransactionData = {
   blockHash: string;
   blockNumber: string;
@@ -27,3 +29,10 @@ export type Chain = {
   explorerApiUrl: string
   explorerApiKey: string
 }
+
+export type DetectionResult = {
+  type: AccountAbstractionType;
+  version: string;
+  decodedTransaction: TransactionDescription;
+  ABI: any;
+};

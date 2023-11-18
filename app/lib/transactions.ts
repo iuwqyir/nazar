@@ -1,5 +1,6 @@
+import type { Interface, TransactionDescription } from '@ethersproject/abi';
 import axios from 'axios';
-import type { Chain, EtherscanTransactionData } from 'lib/types';
+import { ethers } from 'ethers';
 
 export const findTransactionByHash = async (
   chain: Chain,
@@ -22,3 +23,13 @@ export const findTransactionByHash = async (
   };
 };
 
+export const decodeTransaction = (
+  transaction: EtherscanTransactionData,
+  abi: any,
+): TransactionDescription => {
+  const _interface: Interface = new ethers.utils.Interface(abi);
+  return _interface.parseTransaction({
+    data: transaction.input,
+    value: transaction.value,
+  });
+};
