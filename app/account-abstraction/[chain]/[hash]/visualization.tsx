@@ -17,6 +17,9 @@ import "reactflow/dist/style.css";
 import { buildERC4337Nodes, buildSafeNodes } from './nodeBuilder';
 import { buildERC4337Edges, buildSafeEdges } from './edgeBuilder';
 
+export const SAFE_COLOR = '#76fb8e'
+export const ERC4337_COLOR = '#5a84f2'
+
 const edgeTypes = {
   'mempool-edge': MempoolEdge,
 };
@@ -71,7 +74,7 @@ const Visualization: FC<{ data?: AccountAbstractionData }> = ({ data }) => {
             nodeBorderRadius={2}
           /> */}
           <Controls />
-          <Background color="#aaa" gap={16} />
+          <Background color={data?.erc4337 ? 'blue' : '#76fb8e'} gap={16} />
         </ReactFlow>
       </div>
     </Card>

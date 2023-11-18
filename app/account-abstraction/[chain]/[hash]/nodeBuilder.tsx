@@ -3,6 +3,7 @@
 import { Chain, ERC4337Data, SafeData } from 'lib/types';
 import { shortenHex } from 'lib/util';
 import { Position, Node } from "reactflow";
+import { ERC4337_COLOR, SAFE_COLOR } from './visualization';
 
 export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
   if (!data) return []
@@ -21,6 +22,9 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
           </>
         )
       },
+      style: {
+        backgroundColor: SAFE_COLOR
+      },
       position: { x: 250, y: 0 }
     },
     {
@@ -33,6 +37,9 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
             <p>{shortenHex(data.transaction.safe)}</p>
           </>
         )
+      },
+      style: {
+        backgroundColor: SAFE_COLOR
       },
       position: { x: 250, y: 100 }
     },
@@ -47,6 +54,9 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
             <p>{shortenHex(data.singleton)}</p>
           </>
         )
+      },
+      style: {
+        backgroundColor: SAFE_COLOR
       },
       position: { x: 250, y: 200 }
     },
@@ -63,6 +73,9 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
             <p>{shortenHex(data.modules[0])}</p>
           </>
         )
+      },
+      style: {
+        backgroundColor: SAFE_COLOR
       },
       sourcePosition: Position.Left,
       position: { x: 450, y: 0 }
@@ -82,6 +95,9 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
               <p>{shortenHex(contract)}</p>
             </>
           )
+        },
+        style: {
+          backgroundColor: SAFE_COLOR
         },
         sourcePosition: Position.Left,
         position: { x: 250, y: 300 }
@@ -106,6 +122,9 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
           </>
         )
       },
+      style: {
+        backgroundColor: ERC4337_COLOR
+      },
       position: { x: 250, y: 0 }
     },
     {
@@ -118,6 +137,9 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
             <p>{shortenHex(data.bundler)}</p>
           </>
         )
+      },
+      style: {
+        backgroundColor: ERC4337_COLOR
       },
       position: { x: 250, y: 150 }
     },
@@ -132,6 +154,9 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
           </>
         )
       },
+      style: {
+        backgroundColor: ERC4337_COLOR
+      },
       position: { x: 250, y: 250 }
     },
     {
@@ -145,6 +170,9 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
             <p>{shortenHex(userOp.sender)}</p>
           </>
         )
+      },
+      style: {
+        backgroundColor: ERC4337_COLOR,
       },
       position: { x: 250, y: 350 }
     },
@@ -162,7 +190,7 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
         )
       },
       style: {
-        color: "#333",
+        backgroundColor: ERC4337_COLOR,
         border: "1px dashed #000"
       },
       position: { x: 50, y: 300 },
@@ -186,8 +214,8 @@ export const buildERC4337Nodes = (chain: Chain, hash: string, data?: ERC4337Data
       position: { x: 450, y: 300 },
       targetPosition: Position.Left,
       style: {
-        color: "#333",
-        border: "1px dashed #000"
+        backgroundColor: ERC4337_COLOR,
+        border: `1px dashed #000`
       }
     })
   }

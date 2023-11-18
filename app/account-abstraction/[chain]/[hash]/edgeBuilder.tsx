@@ -2,6 +2,7 @@
 
 import { ERC4337Data, SafeData } from 'lib/types';
 import { MarkerType, Edge } from "reactflow";
+import { ERC4337_COLOR, SAFE_COLOR } from './visualization';
 
 export const buildSafeEdges = (data?: SafeData): Edge[] => {
   if (!data) return []
@@ -11,7 +12,11 @@ export const buildSafeEdges = (data?: SafeData): Edge[] => {
       source: "caller",
       target: "safeproxy",
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: SAFE_COLOR
+      },
+      style: {
+        stroke: SAFE_COLOR
       },
     },
     {
@@ -19,7 +24,11 @@ export const buildSafeEdges = (data?: SafeData): Edge[] => {
       source: "safeproxy",
       target: "singleton",
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: SAFE_COLOR
+      },
+      style: {
+        stroke: SAFE_COLOR
       },
       animated: true
     }
@@ -30,7 +39,11 @@ export const buildSafeEdges = (data?: SafeData): Edge[] => {
       source: "plugin",
       target: "safeproxy",
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: SAFE_COLOR
+      },
+      style: {
+        stroke: SAFE_COLOR
       },
       animated: true
     })
@@ -44,9 +57,13 @@ export const buildSafeEdges = (data?: SafeData): Edge[] => {
         source: "singleton",
         target: "contract",
         markerEnd: {
-          type: MarkerType.ArrowClosed
+          type: MarkerType.ArrowClosed,
+          color: SAFE_COLOR
         },
         label: decoded.method,
+        style: {
+          stroke: SAFE_COLOR
+        },
         animated: true
       })
     }
@@ -61,14 +78,21 @@ export const buildERC4337Edges = (data?: ERC4337Data): Edge[] => {
       id: "e-userop-bundler",
       source: "userop",
       target: "bundler",
-      type: 'mempool-edge'
+      type: 'mempool-edge',
+      style: {
+        stroke: ERC4337_COLOR
+      },
     },
     {
       id: "e-bundler-entrypoint",
       source: "bundler",
       target: "entrypoint",
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: ERC4337_COLOR
+      },
+      style: {
+        stroke: ERC4337_COLOR
       },
       animated: true
     },
@@ -77,7 +101,8 @@ export const buildERC4337Edges = (data?: ERC4337Data): Edge[] => {
       source: "entrypoint",
       target: "account",
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: ERC4337_COLOR
       },
       animated: true
     }
@@ -88,7 +113,11 @@ export const buildERC4337Edges = (data?: ERC4337Data): Edge[] => {
       source: 'entrypoint',
       target: 'accountfactory',
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: ERC4337_COLOR
+      },
+      style: {
+        stroke: ERC4337_COLOR
       },
       animated: true
     })
@@ -97,7 +126,11 @@ export const buildERC4337Edges = (data?: ERC4337Data): Edge[] => {
       source: 'accountfactory',
       target: 'account',
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: ERC4337_COLOR
+      },
+      style: {
+        stroke: ERC4337_COLOR
       },
       animated: true
     })
@@ -108,7 +141,11 @@ export const buildERC4337Edges = (data?: ERC4337Data): Edge[] => {
       source: 'entrypoint',
       target: 'paymaster',
       markerEnd: {
-        type: MarkerType.ArrowClosed
+        type: MarkerType.ArrowClosed,
+        color: ERC4337_COLOR
+      },
+      style: {
+        stroke: ERC4337_COLOR
       },
       animated: true
     })
