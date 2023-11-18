@@ -27,28 +27,34 @@ export async function GET(request: Request, { params }: GetProps): Promise<Respo
   if (!detectionResult)
     return Response.json({ error: 'not a account abstraction transaction' });
 
-  const [{ trace, innerOperationFailed }, timestamp] = await Promise.all([
-    fetchTrace(chain, params.hash, detectionResult.type),
-    fetchBlockTimestamp(chain, transaction.blockNumber)
-  ])
-  const priceCoefficient = await getHistoricalPriceCoefficient(chain, timestamp / 1000);
-  const fee = calculateTransactionFee(transaction.gasPrice, trace.gasUsed, priceCoefficient)
-  const errorData = extractErrorDataFromTrace(trace, detectionResult.ABI)
-
-  const erc4337 = getERC4337Data(transaction, detectionResult, trace, priceCoefficient)
-  const safe = await getSafeData(chain, transaction, trace, detectionResult)
-  const data: AccountAbstractionData = {
-    transaction,
-    timestamp,
-    fee: fee.inWei.toHexString(),
-    feeInUSD: fee.inUSD,
-    trace,
-    chain,
-    innerOperationFailed,
-    detectionResult,
-    errorData,
-    erc4337,
-    safe
-  }
-  return Response.json({ data })
+    try {
+      const [{ trace, innerOperationFailed }, timestamp] = await Promise.all([
+        fetchTrace(chain, params.hash, detectionResult.type),
+        fetchBlockTimestamp(chain, transaction.blockNumber)
+      ])
+      const priceCoefficient = await getHistoricalPriceCoefficient(chain, timestamp / 1000);
+      const fee = calculateTransactionFee(transaction.gasPrice, trace.gasUsed, priceCoefficient)
+      const errorData = extractErrorDataFromTrace(trace, detectionResult.ABI)
+    
+      const erc4337 = getERC4337Data(transaction, detectionResult, trace, priceCoefficient)
+      const safe = await getSafeData(chain, transaction, trace, detectionResult)
+      const data: AccountAbstractionData = {
+        transaction,
+        timestamp,
+        fee: fee.inWei.toHexString(),
+        feeInUSD: fee.inUSD,
+        trace,
+        chain,
+        innerOperationFailed,
+        detectionResult,
+        errorData,
+        erc4337,
+        safe
+      }
+      return Response.json({ data })
+    } catch (err) {
+      console.log(err)
+      return Response.json({})
+    }
+  
 }

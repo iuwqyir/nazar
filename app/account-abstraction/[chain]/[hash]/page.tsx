@@ -8,6 +8,7 @@ import { ethers, BigNumber } from 'ethers';
 import { formatDistanceToNowStrict } from 'date-fns';
 import TransactionFlow from 'app/components/transactionFlow';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
+import Visualization from './visualization'
 
 type PageProps = {
   params: {
@@ -45,18 +46,23 @@ export default function Page({ params: { chain, hash } }: PageProps) {
     setIsLoading(true);
     setError(null);
 
-    const response = await fetch(`/api/aa/${chain}/${hash}`, {
-      headers: {
-        'Content-Type': 'application/json',
+    try {
+      const response = await fetch(`/api/aa/${chain}/${hash}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      const responseJson: Response = await response.json();
+      if (responseJson.data) {
+        setData(responseJson.data);
+        setError(null)
       }
-    });
-    const responseJson: Response = await response.json();
-    if (responseJson.data) {
-      setData(responseJson.data);
-      setError(null)
-    }
-    if (responseJson.error) {
-      setError(responseJson.error)
+      if (responseJson.error) {
+        setError(responseJson.error)
+        setData(null)
+      }
+    } catch (err) {
+      setError('Failed to complete request. Try again later.')
       setData(null)
     }
 
@@ -159,6 +165,7 @@ export default function Page({ params: { chain, hash } }: PageProps) {
           </Card>
         </div>
       </Grid>
+      <Visualization data={data} />
       <pre>
         {JSON.stringify(data, null, 2)}
       </pre>
