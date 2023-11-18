@@ -1,8 +1,6 @@
-import axios from 'axios';
 import { Chain } from 'lib/types';
-import { ENTRYPOINT_V6_ADDRESS, USER_OP_HANDLE_FUNCTION } from 'lib/aa/detector';
-import { decodeTransaction } from 'lib/transactions';
-import entryPointABI from './entrypoint-v6-abi.json';
+import { detectAccountAbstractionTransaction } from 'lib/aa/detector';
+import { findTransactionByHash } from 'lib/transactions';
 import {chains} from 'lib/chains';
 
 export type FindTransactionsResponse = {
@@ -29,22 +27,10 @@ const getTransactionInfo = async (
   hash: string,
   chain: Chain,
 ): Promise<{ exists: boolean; isUserOp: boolean }> => {
-  if (!chain.explorerApiUrl) return { exists: false, isUserOp: false };
-
-  const response = await axios.get(chain.explorerApiUrl, {
-    params: {
-      module: 'proxy',
-      action: 'eth_getTransactionByHash',
-      apiKey: chain.explorerApiKey,
-      txhash: hash,
-    },
-  });
-  const transaction = response?.data?.result;
-  if (transaction?.hash !== hash) return { exists: false, isUserOp: false };
-  if (transaction?.to !== ENTRYPOINT_V6_ADDRESS) return { exists: true, isUserOp: false };
-  const decodedTransaction = decodeTransaction(transaction, entryPointABI);
-  if (decodedTransaction?.name !== USER_OP_HANDLE_FUNCTION)
-    return { exists: true, isUserOp: false };
+  const transaction = await findTransactionByHash(chain, hash);
+  if (!transaction || transaction?.hash !== hash) return { exists: false, isUserOp: false };
+  const detectionResult = await detectAccountAbstractionTransaction(chain, transaction);
+  if (!detectionResult) return { exists: true, isUserOp: false };
   return { exists: true, isUserOp: true };
 };
 
