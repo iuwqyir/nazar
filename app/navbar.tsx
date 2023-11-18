@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react'
 import { Fragment } from 'react';
 import { usePathname } from 'next/navigation';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
@@ -9,7 +10,8 @@ import Image from 'next/image';
 
 const navigation = [
   { name: 'Dashboard', href: '/' },
-  { name: 'Playground', href: '/playground' }
+  { name: 'Playground', href: '/playground' },
+  { name: 'Web3Inbox', href: '/inbox' }
 ];
 
 function classNames(...classes: string[]) {
