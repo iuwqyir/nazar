@@ -157,9 +157,6 @@ export default function Page({ params: { chain, hash } }: PageProps) {
             )}
           </ParentSize>
       </Card>
-      <pre>
-        {JSON.stringify(data, null, 2)}
-      </pre>
     </main>
   );
 };
