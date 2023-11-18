@@ -71,9 +71,9 @@ export const chainCurrencies: { [chain: string]: string } = {
   [chains.ethereum.name]: 'ETH',
   [chains.polygon.name]: 'MATIC',
   [chains.bnb.name]: 'BNB',
-  [chains.base.name]: 'ETH',
+//   [chains.base.name]: 'ETH',
   [chains.optimism.name]: 'ETH',
-  [chains.celo.name]: 'CELO',
+//   [chains.celo.name]: 'CELO',
   [chains.arbitrum.name]: 'ETH',
-  [chains.gnosis.name]: 'XDAI',
+//   [chains.gnosis.name]: 'XDAI',
 };
