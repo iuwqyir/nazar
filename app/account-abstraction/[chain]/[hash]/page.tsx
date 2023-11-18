@@ -6,6 +6,8 @@ import { AccountAbstractionData, Chain, ERC4337Data, TransactionError } from 'li
 import React from 'react'
 import { ethers, BigNumber } from 'ethers';
 import { formatDistanceToNowStrict } from 'date-fns';
+import TransactionFlow from 'app/components/transactionFlow';
+import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 type PageProps = {
   params: {
@@ -61,6 +63,25 @@ export default function Page({ params: { chain, hash } }: PageProps) {
     setIsLoading(false);
   }
 
+  function renameKeys(json: any): any {
+    if (Array.isArray(json)) {
+      return json.map((item) => renameKeys(item));
+    } else if (json !== null && typeof json === 'object') {
+      let newObject: { [key: string]: any } = {};
+      for (const key in json) {
+        let newKey = key;
+        if (key === 'from') {
+          newKey = 'name';
+        } else if (key === 'calls') {
+          newKey = 'children';
+        }
+        newObject[newKey] = renameKeys(json[key]);
+      }
+      return newObject;
+    }
+    return json;
+  }
+
   useEffect(() => {
     if (!chain || !hash) return;
     fetchData(chain as string, hash as string);
@@ -73,14 +94,25 @@ export default function Page({ params: { chain, hash } }: PageProps) {
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
       <Grid numItemsSm={2} numItemsLg={2} className="gap-6">
-        <Card key='transaction'>
+        {/* Existing Card */}
+        <Card key="transaction">
           <Flex
             justifyContent="start"
             alignItems="baseline"
             className="space-x-2"
           >
             <Title>Transaction</Title>
-            <Subtitle className="cursor-pointer" onClick={() => window.open(`${data.chain.explorerUrl}/tx/${data.transaction.hash}`, '_blank')}>{shortenHex(data.transaction.hash)}</Subtitle>
+            <Subtitle
+              className="cursor-pointer"
+              onClick={() =>
+                window.open(
+                  `${data.chain.explorerUrl}/tx/${data.transaction.hash}`,
+                  '_blank'
+                )
+              }
+            >
+              {shortenHex(data.transaction.hash)}
+            </Subtitle>
           </Flex>
           <Flex className="mt-6">
             <Text>Chain</Text>
@@ -112,6 +144,20 @@ export default function Page({ params: { chain, hash } }: PageProps) {
           </Flex>
         </Card>
         <ERC4337Component data={data.erc4337} chain={data.chain} />
+
+        {/* New Row with One Column */}
+        <div className="col-span-2">
+          {' '}
+          {/* This makes the card span across two columns */}
+          <Card key="new-card">
+                  <Title>Interaction Flow</Title>
+              <ParentSize>
+                {({ width, height }) => (
+                  <TransactionFlow width={width} height={500} data={renameKeys(data.trace)}/>
+                )}
+              </ParentSize>
+          </Card>
+        </div>
       </Grid>
       <pre>
         {JSON.stringify(data, null, 2)}

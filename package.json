@@ -8,6 +8,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@visx/gradient": "latest",
+    "@visx/group": "latest",
+    "@visx/hierarchy": "latest",
+    "@visx/responsive": "latest",
+    "@visx/shape": "latest",
     "@ethersproject/abi": "^5.7.0",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
