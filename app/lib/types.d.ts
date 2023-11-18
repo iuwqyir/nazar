@@ -22,12 +22,42 @@ export type EtherscanTransactionData = {
   s: string;
 };
 
+export type EtherscanTransactionReceipt = {
+  blockHash: string
+  blockNumber: string
+  contractAddress?: string
+  cumulativeGasUsed: string
+  effectiveGasPrice: string
+  from: string
+  gasUsed: string
+  logsBloom: string
+  status: string
+  to: string
+  transactionHash: string
+  transactionIndex: string
+  type: string
+  logs: EtherscanReceiptLog[]
+};
+
+export type EtherscanReceiptLog = {
+  address: string
+  topics: string[]
+  data: string
+  blockNumber: string
+  transactionHash: string
+  transactionIndex: string
+  blockHash: string
+  logIndex: string
+  removed: boolean
+}
 
 export type Chain = {
   name: string
   explorerUrl: string
   explorerApiUrl: string
   explorerApiKey: string
+  safeApiUrl: string
+  providerEndpoint: string
 }
 
 export type DetectionResult = {
@@ -35,4 +65,9 @@ export type DetectionResult = {
   version: string;
   decodedTransaction: TransactionDescription;
   ABI: any;
+  safe?: {
+    singleton: string;
+    txHash: string
+  }
 };
+
