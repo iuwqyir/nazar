@@ -54,7 +54,7 @@ const Visualization: FC<{ data?: AccountAbstractionData }> = ({ data }) => {
           edgeTypes={edgeTypes}
           onNodeClick={onNodeClick}
         >
-          <MiniMap
+          {/* <MiniMap
             nodeStrokeColor={(n) => {
               if (n.style?.background) return n.style.background as string;
               if (n.type === "input") return "#0041d0";
@@ -69,7 +69,7 @@ const Visualization: FC<{ data?: AccountAbstractionData }> = ({ data }) => {
               return "#fff";
             }}
             nodeBorderRadius={2}
-          />
+          /> */}
           <Controls />
           <Background color="#aaa" gap={16} />
         </ReactFlow>
