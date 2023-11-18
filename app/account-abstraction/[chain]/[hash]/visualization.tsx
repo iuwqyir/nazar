@@ -74,7 +74,7 @@ const Visualization: FC<{ data?: AccountAbstractionData }> = ({ data }) => {
             nodeBorderRadius={2}
           /> */}
           <Controls />
-          <Background color={data?.erc4337 ? 'blue' : '#76fb8e'} gap={16} />
+          <Background color={data?.erc4337 ? ERC4337_COLOR : SAFE_COLOR} gap={16} />
         </ReactFlow>
       </div>
     </Card>
