@@ -100,3 +100,8 @@ export type DecodedSingature = {
 export type DecodedSignatures = {
   [hexSignature: string]: DecodedSingature[];
 };
+
+export type TransactionError = {
+  message: string;
+  decoded: string;
+};

@@ -1,7 +1,7 @@
 import { chains } from "lib/chains"
 import { calculateTransactionFee, findTransactionByHash } from 'lib/transactions'
 import { detectAccountAbstractionTransaction } from "lib/aa/detector"
-import { fetchAccountAbstractionTrace as fetchTrace } from "lib/traces"
+import { extractErrorDataFromTrace, fetchAccountAbstractionTrace as fetchTrace } from "lib/traces"
 import { fetchBlockTimestamp } from "lib/blocks"
 import { getHistoricalPriceCoefficient } from "lib/prices"
 
@@ -30,5 +30,7 @@ export async function GET(request: Request, { params }: GetProps): Promise<Respo
   ])
   const priceCoefficient = await getHistoricalPriceCoefficient(chain, timestamp / 1000);
   const fee = calculateTransactionFee(transaction.gasPrice, trace.gasUsed, priceCoefficient)
-  return Response.json({ timestamp, transaction, fee, innerOperationFailed, trace, detectionResult })
+  const errorData = extractErrorDataFromTrace(trace, detectionResult.ABI)
+
+  return Response.json({ timestamp, transaction, errorData, fee, innerOperationFailed, trace, detectionResult })
 }

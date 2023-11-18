@@ -1,5 +1,6 @@
+import ethers from 'ethers'
 import { AccountAbstractionType } from "lib/aa/detector";
-import { Chain, DecodedSignatures, ProviderTrace, Trace } from "lib/types";
+import { Chain, DecodedSignatures, ProviderTrace, Trace, TransactionError } from "lib/types";
 import { providers } from "ethers";
 import { fetchDecodedSignatures } from "lib/signatures";
 import { enrichSafeTrace } from "./aa/safe";
@@ -75,4 +76,17 @@ export const fetchAccountAbstractionTrace = async (
       ? enrichSafeTrace(enrichedTrace)
       : enrichERC4337Trace(enrichedTrace);
   return { trace, innerOperationFailed };
+};
+
+export const extractErrorDataFromTrace = (trace: Trace, abi: any): TransactionError | undefined => {
+  if (!trace.error || !trace.output) return;
+  try {
+    const _interface = new ethers.utils.Interface(abi);
+    const decoded = _interface.parseError(trace.output);
+    return { message: trace.error, decoded: decoded.args[1] };
+  } catch (e) {
+    const encodedErrorString = `0x${trace.output.substring(10)}`;
+    const decoded = ethers.utils.defaultAbiCoder.decode(['string'], encodedErrorString);
+    return { message: trace.error, decoded: decoded[0] };
+  }
 };
