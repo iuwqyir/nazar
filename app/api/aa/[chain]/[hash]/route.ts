@@ -1,8 +1,9 @@
 import { chains } from "lib/chains"
-import { findTransactionByHash } from 'lib/transactions'
+import { calculateTransactionFee, findTransactionByHash } from 'lib/transactions'
 import { detectAccountAbstractionTransaction } from "lib/aa/detector"
 import { fetchAccountAbstractionTrace as fetchTrace } from "lib/traces"
 import { fetchBlockTimestamp } from "lib/blocks"
+import { getHistoricalPriceCoefficient } from "lib/prices"
 
 export const dynamic = 'force-dynamic' // defaults to force-static
 
@@ -13,7 +14,7 @@ type GetProps = {
   }
 }
 
-export async function GET(request: Request, { params }: GetProps) {
+export async function GET(request: Request, { params }: GetProps): Promise<Response> {
   const chain = chains[params.chain]
   if (!chain) return Response.json({ error: 'Unsupported chain' })
   const transaction = await findTransactionByHash(chain, params.hash);
@@ -27,6 +28,7 @@ export async function GET(request: Request, { params }: GetProps) {
     fetchTrace(chain, params.hash, detectionResult.type),
     fetchBlockTimestamp(chain, transaction.blockNumber)
   ])
-
-  return Response.json({ timestamp, transaction, innerOperationFailed, trace, detectionResult })
+  const priceCoefficient = await getHistoricalPriceCoefficient(chain, timestamp / 1000);
+  const fee = calculateTransactionFee(transaction.gasPrice, trace.gasUsed, priceCoefficient)
+  return Response.json({ timestamp, transaction, fee, innerOperationFailed, trace, detectionResult })
 }
