@@ -1,19 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
 
 export default function Search({ disabled }: { disabled?: boolean }) {
-  const router = useRouter(); // Use the router
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
 
   function handleSearch(term: string) {
     setSearchTerm(term);
     setShowDropdown(term.length > 0);
+  }
+
+  useEffect(() => {
+    if (searchTerm.length > 10) {
+        setShowDropdown(true)
+        setShowLoading(true)
+    } 
+  }, [searchTerm]);
+
+  function getDropDownElements() {
+    fetch(`/api/search/${searchTerm}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then((result) => {
+      result.json().then((contractsList) => {
+        setShowLoading(false)
+        return contractsList.map((item, index) => (
+          <li
+            key={index}
+            className="p-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => handleDropdownItemClick(item.hash)}
+          >
+            {item.hash}
+          </li>
+        ));
+      });
+    }).catch(error => {
+        console.error('Error:', error);
+      });
   }
 
   function handleDropdownItemClick(item: string) {
@@ -48,32 +77,24 @@ export default function Search({ disabled }: { disabled?: boolean }) {
         />
       </div>
 
-      {isPending && (
-        <div className="absolute right-0 top-0 bottom-0 flex items-center justify-center">
-          {/* Loading spinner */}
+      {showLoading && (
+          <div className="absolute w-full top-full mt-2">
+          <div className="absolute top-full mt-2 w-full rounded-md shadow-lg bg-white z-50">
+            <div className="flex items-center justify-center p-2">
+              <div className="animate-spin w-4 h-4 border-t-2 border-b-2 border-zinc-600 dark:border-zinc-500 rounded-full" />
+              <span className="ml-2 text-zinc-900 dark:text-zinc-300">Loading...</span>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Dropdown Menu */}
       {showDropdown && (
         <div className="absolute top-full mt-2 w-full rounded-md shadow-lg bg-white z-50">
-          <ul>
-            {[
-              '0xc4380f288cec0c9647daf6908b0034ae5dae7eec7a5233dbeadf4c019d7c140f',
-              '0xc4380f288cec0c9647daf6908b0034ae5dae7eec7a5233dbeadf4c019d7c140f',
-              '0xc4380f288cec0c9647daf6908b0034ae5dae7eec7a5233dbeadf4c019d7c140f'
-            ].map((item, index) => (
-              <li
-                key={index}
-                className="p-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleDropdownItemClick(item)}
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
+          <ul>{getDropDownElements()}</ul>
         </div>
       )}
     </div>
   );
 }
+
