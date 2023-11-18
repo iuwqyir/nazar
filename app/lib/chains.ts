@@ -43,8 +43,8 @@ export const chains: { [key: string]: Chain } = {
   },
   celo: {
     name: 'celo',
-    explorerUrl: 'https://explorer.celo.org/mainnet',
-    explorerApiUrl: 'https://explorer.celo.org/mainnet/api',
+    explorerUrl: 'https://celoscan.io/',
+    explorerApiUrl: 'https://api.celoscan.io/api',
     explorerApiKey: process.env.CELO_EXPLORER_API_KEY!,
     safeApiUrl: 'https://safe-transaction-celo.safe.global',
     providerEndpoint: process.env.CELO_PROVIDER_ENDPOINT!,
