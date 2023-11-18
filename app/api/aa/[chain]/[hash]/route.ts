@@ -23,8 +23,10 @@ export async function GET(request: Request, { params }: GetProps) {
   if (!detectionResult)
     return Response.json({ error: 'not a account abstraction transaction' });
 
-  const { trace, innerOperationFailed } = await fetchTrace(chain, params.hash, detectionResult.type);
-  const timestamp = await fetchBlockTimestamp(chain, transaction.blockNumber);
+  const [{ trace, innerOperationFailed }, timestamp] = await Promise.all([
+    fetchTrace(chain, params.hash, detectionResult.type),
+    fetchBlockTimestamp(chain, transaction.blockNumber)
+  ])
 
   return Response.json({ timestamp, transaction, innerOperationFailed, trace, detectionResult })
 }
