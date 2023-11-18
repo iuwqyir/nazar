@@ -1,29 +1,28 @@
 'use client';
 
+import { useState } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 
 export default function Search({ disabled }: { disabled?: boolean }) {
-  const { replace } = useRouter();
-  const pathname = usePathname();
+  const router = useRouter(); // Use the router
   const [isPending, startTransition] = useTransition();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   function handleSearch(term: string) {
-    const params = new URLSearchParams(window.location.search);
-    if (term) {
-      params.set('q', term);
-    } else {
-      params.delete('q');
-    }
+    setSearchTerm(term);
+    setShowDropdown(term.length > 0);
+  }
 
-    startTransition(() => {
-      replace(`${pathname}?${params.toString()}`);
-    });
+  function handleDropdownItemClick(item: string) {
+    // http://localhost:3001/account-abstraction/chain/hash
+    router.push(`/account-abstraction/ethereum/${item}`); // Navigate to the path
   }
 
   return (
-    <div className="relative mt-5 max-w-md mx-auto">
+    <div className="relative mt-5 max-w-xl mx-auto">
       <label htmlFor="search" className="sr-only">
         Search
       </label>
@@ -52,6 +51,27 @@ export default function Search({ disabled }: { disabled?: boolean }) {
       {isPending && (
         <div className="absolute right-0 top-0 bottom-0 flex items-center justify-center">
           {/* Loading spinner */}
+        </div>
+      )}
+
+      {/* Dropdown Menu */}
+      {showDropdown && (
+        <div className="absolute top-full mt-2 w-full rounded-md shadow-lg bg-white z-50">
+          <ul>
+            {[
+              '0xc4380f288cec0c9647daf6908b0034ae5dae7eec7a5233dbeadf4c019d7c140f',
+              '0xc4380f288cec0c9647daf6908b0034ae5dae7eec7a5233dbeadf4c019d7c140f',
+              '0xc4380f288cec0c9647daf6908b0034ae5dae7eec7a5233dbeadf4c019d7c140f'
+            ].map((item, index) => (
+              <li
+                key={index}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleDropdownItemClick(item)}
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
