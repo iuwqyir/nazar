@@ -5,8 +5,9 @@ import { shortenHex } from 'lib/util';
 import { Position, Node } from "reactflow";
 
 export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
-  console.log(data)
   if (!data) return []
+  const decoded: any = data.transaction.dataDecoded
+  const contract = decoded.parameters.find(param => param.type === 'address' && param.name === 'to')?.value
   const nodes: Node[] = [
     {
       id: "caller",
@@ -37,7 +38,7 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
     },
     {
       id: "singleton",
-      type: data.transaction.dataDecoded ? 'default' : 'output',
+      type: contract ? 'default' : 'output',
       data: {
         link: `${chain.explorerUrl}/address/${data.singleton}`,
         label: (
@@ -67,19 +68,18 @@ export const buildSafeNodes = (chain: Chain, data?: SafeData): Node[] => {
       position: { x: 450, y: 0 }
     })
   }
-  const decoded: any = data.transaction.dataDecoded
+
   if (decoded?.parameters?.length) {
-    const to = decoded.parameters.filter(param => param.type === 'address' && param.name === 'to')
-    if (to) {
+    if (contract) {
       nodes.push({
         id: 'contract',
         type: 'output',
         data: {
-          link: `${chain.explorerUrl}/address/${to}`,
+          link: `${chain.explorerUrl}/address/${contract}`,
           label: (
             <>
               <p>Contract</p>
-              <p>{shortenHex(to)}</p>
+              <p>{shortenHex(contract)}</p>
             </>
           )
         },
