@@ -1,4 +1,5 @@
-import { TransactionDescription } from '@ethersproject/abi';
+import type { TransactionDescription } from '@ethersproject/abi';
+import type { PaymasterHandleType } from 'lib/aa/erc4337';
 
 export type EtherscanTransactionData = {
   blockHash: string;
@@ -126,4 +127,12 @@ export type UserOp = {
   preVerificationGas: number;
   paymasterAndData: string;
   signature: string;
+  paymaster?: Paymaster;
+};
+
+export type Paymaster = {
+  address: string;
+  actualGasCost?: string; // if this exists, this means the paymaster validation succeeded
+  actualGasCostInUSD?: number;
+  type: PaymasterHandleType;
 };

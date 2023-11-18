@@ -1,9 +1,23 @@
-import { DetectionResult, ERC4337Data, EtherscanTransactionData, Trace, UserOp } from "lib/types";
+import { DetectionResult, ERC4337Data, EtherscanTransactionData, Paymaster, Trace, UserOp } from "lib/types";
 import { AccountAbstractionType } from "./detector";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { convertETHToUSD } from "lib/prices";
 
 const OP_HANDLE_FUNCTION_NAME = 'innerHandleOp';
+const POST_OP_SIGNATURE = 'postOp(uint8,bytes,uint256)';
+
+export enum PaymasterHandleType {
+  Sponsor = 'sponsor',
+  ERC20ByUser = 'erc20_by_user',
+  Unknown = 'unknown',
+}
+
+const KNOWN_PAYMASTERS: { [key: string]: PaymasterHandleType } = {
+  '0xe93eca6595fe94091dc1af46aac2a8b5d7990770': PaymasterHandleType.ERC20ByUser,
+  '0x000031dd6d9d3a133e663660b959162870d755d4': PaymasterHandleType.Sponsor,
+  '0x00000f79b7faf42eebadba19acc07cd08af44789': PaymasterHandleType.Sponsor,
+  '0x00000f7365ca6c59a2c93719ad53d567ed49c14c': PaymasterHandleType.ERC20ByUser,
+};
 
 export const enrichERC4337Trace = (trace: Trace): Trace => {
   const handleTraceNode = (trace: Trace, isInnerHandleOp?: boolean): Trace => {
@@ -31,6 +45,7 @@ export const getERC4337Data = (
   const rawUserOps = detectionResult.decodedTransaction.args?.ops || [];
   const userOps: UserOp[] = [];
   for (let index = 0; index < rawUserOps.length; index++) {
+    const userOpTrace = findUserOpTrace(trace, index);
     const userOp = rawUserOps[index];
     userOps.push({
       sender: userOp.sender?.toLowerCase(),
@@ -42,6 +57,11 @@ export const getERC4337Data = (
       preVerificationGas: userOp.preVerificationGas?.toNumber(),
       paymasterAndData: userOp.paymasterAndData,
       signature: userOp.signature,
+      paymaster: extractPaymasterData({
+        paymasterAndData: userOp.paymasterAndData,
+        opTrace: userOpTrace,
+        priceCoefficient,
+      }),
     });
   }
 
@@ -77,4 +97,43 @@ const extractBundlerCompensation = (
     }
   }
   return BigNumber.from(0).sub(txFee);
+};
+
+interface ExtractPaymasterDataInput {
+  paymasterAndData: string;
+  opTrace?: Trace;
+  priceCoefficient?: number;
+}
+
+const extractPaymasterData = (input: ExtractPaymasterDataInput): Paymaster | undefined => {
+  const paymaster = extractAddressFromBeginning(input.paymasterAndData);
+  if (!paymaster) return;
+  let actualGasCost;
+  const postOpTrace = input.opTrace?.calls?.find(
+    (trace) => trace.functionName === POST_OP_SIGNATURE && trace.to === paymaster,
+  );
+  if (postOpTrace && postOpTrace.input) {
+    const decodedInput = ethers.utils.defaultAbiCoder.decode(
+      ['uint8', 'bytes', 'uint256'],
+      ethers.utils.hexDataSlice(postOpTrace.input, 4),
+    );
+    actualGasCost = decodedInput[2];
+  }
+  const type = KNOWN_PAYMASTERS[paymaster] || PaymasterHandleType.Unknown;
+  const actualGasCostInUSD = convertETHToUSD(
+    BigNumber.from(actualGasCost || 0),
+    input.priceCoefficient,
+  );
+  return { address: paymaster, actualGasCost, type, actualGasCostInUSD };
+};
+
+const findUserOpTrace = (txTrace: Trace, index: number): Trace | undefined => {
+  let detectedOpIndex = 0;
+  for (const trace of txTrace.calls || []) {
+    // innerHandleOps are always on the first level after handleOps
+    if (trace.functionName?.startsWith(OP_HANDLE_FUNCTION_NAME)) {
+      if (detectedOpIndex === index) return trace;
+      detectedOpIndex++;
+    }
+  }
 };

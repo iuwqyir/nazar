@@ -1,7 +1,6 @@
-import ethers from 'ethers'
 import { AccountAbstractionType } from "lib/aa/detector";
 import { Chain, DecodedSignatures, ProviderTrace, Trace, TransactionError } from "lib/types";
-import { providers } from "ethers";
+import { providers, utils } from "ethers";
 import { fetchDecodedSignatures } from "lib/signatures";
 import { enrichSafeTrace } from "./aa/safe";
 import { enrichERC4337Trace } from "./aa/erc4337";
@@ -10,7 +9,7 @@ export const fetchTransactionTraceFromProvider = async (
   chain: Chain,
   transactionHash: string,
 ): Promise<ProviderTrace> => {
-  const provider = new providers.JsonRpcProvider(chain.providerEndpoint);
+  const provider = new providers.JsonRpcProvider({ skipFetchSetup: true, url: chain.providerEndpoint });
   return await provider.send('debug_traceTransaction', [transactionHash, { tracer: 'callTracer' }]);
 };
 
@@ -81,12 +80,12 @@ export const fetchAccountAbstractionTrace = async (
 export const extractErrorDataFromTrace = (trace: Trace, abi: any): TransactionError | undefined => {
   if (!trace.error || !trace.output) return;
   try {
-    const _interface = new ethers.utils.Interface(abi);
+    const _interface = new utils.Interface(abi);
     const decoded = _interface.parseError(trace.output);
     return { message: trace.error, decoded: decoded.args[1] };
   } catch (e) {
     const encodedErrorString = `0x${trace.output.substring(10)}`;
-    const decoded = ethers.utils.defaultAbiCoder.decode(['string'], encodedErrorString);
+    const decoded = utils.defaultAbiCoder.decode(['string'], encodedErrorString);
     return { message: trace.error, decoded: decoded[0] };
   }
 };
