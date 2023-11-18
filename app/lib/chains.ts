@@ -46,15 +46,15 @@ export const chains: { [key: string]: Chain } = {
     providerEndpoint: process.env.OPTIMISM_PROVIDER_ENDPOINT!,
     currency: 'ETH'
   },
-//   celo: {
-//     name: 'celo',
-//     explorerUrl: 'https://explorer.celo.org/mainnet',
-//     explorerApiUrl: 'https://explorer.celo.org/mainnet/api',
-//     explorerApiKey: process.env.CELO_EXPLORER_API_KEY!,
-//     safeApiUrl: 'https://safe-transaction-celo.safe.global',
-//     providerEndpoint: process.env.CELO_PROVIDER_ENDPOINT!,
-//     currency: 'CELO'
-//   },
+  celo: {
+    name: 'celo',
+    explorerUrl: 'https://explorer.celo.org/mainnet',
+    explorerApiUrl: 'https://api.celoscan.io/api',
+    explorerApiKey: process.env.CELO_EXPLORER_API_KEY!,
+    safeApiUrl: 'https://safe-transaction-celo.safe.global',
+    providerEndpoint: process.env.CELO_PROVIDER_ENDPOINT!,
+    currency: 'CELO'
+  },
   arbitrum: {
     name: 'arbitrum',
     explorerUrl: 'https://arbiscan.io',
