@@ -2,6 +2,7 @@ import './globals.css';
 
 import { Analytics } from '@vercel/analytics/react';
 import Nav from './nav';
+import React from 'react'
 import { Suspense } from 'react';
 import { Web3ModalProvider } from "../context/Web3Modal";
 
