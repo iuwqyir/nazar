@@ -7,7 +7,7 @@ import { decodeTransaction, getTransactionReceipt } from 'lib/transactions';
 const ENTRYPOINT_V6_ADDRESS = '0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789'
 const USER_OP_HANDLE_FUNCTION = 'handleOps'
 const SUPPORTED_SAFE_VERSIONS = ['1.3.0', '1.4.1', '1.2.0', '1.1.1', '1.0.0'];
-const SAFE_TRANSACTION_FUNCTION = 'execTransaction';
+export const SAFE_TRANSACTION_FUNCTION = 'execTransaction';
 
 export enum AccountAbstractionType {
   ERC4337 = 'erc4337',

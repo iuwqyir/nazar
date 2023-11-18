@@ -1,6 +1,9 @@
+import { AccountAbstractionType } from "lib/aa/detector";
 import { Chain, DecodedSignatures, ProviderTrace, Trace } from "lib/types";
 import { providers } from "ethers";
 import { fetchDecodedSignatures } from "lib/signatures";
+import { enrichSafeTrace } from "./aa/safe";
+import { enrichERC4337Trace } from "./aa/erc4337";
 
 export const fetchTransactionTraceFromProvider = async (
   chain: Chain,
@@ -58,13 +61,18 @@ export const enrichTransactionTrace = (
 
 export const fetchAccountAbstractionTrace = async (
   chain: Chain,
-  hash: string
+  hash: string,
+  type: AccountAbstractionType,
 ): Promise<{ trace: Trace; innerOperationFailed: boolean }> => {
   const providerTrace = await fetchTransactionTraceFromProvider(chain, hash);
   const signatures = await fetchDecodedSignatures(collectEncodedTraceSignatures(providerTrace, []));
-  const { trace, innerOperationFailed } = enrichTransactionTrace(
+  const { trace: enrichedTrace, innerOperationFailed } = enrichTransactionTrace(
     providerTrace,
     signatures,
   );
+  const trace =
+    type === AccountAbstractionType.Safe
+      ? enrichSafeTrace(enrichedTrace)
+      : enrichERC4337Trace(enrichedTrace);
   return { trace, innerOperationFailed };
 };
