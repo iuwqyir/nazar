@@ -1,5 +1,5 @@
 import Navbar from './navbar';
 
-export default async function Nav() {
+export default function Nav() {
   return <Navbar />;
 }
