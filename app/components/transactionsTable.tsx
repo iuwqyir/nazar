@@ -1,3 +1,5 @@
+'use client';
+
 import {
     Table,
     TableRow,
@@ -8,6 +10,8 @@ import {
     Badge,
     Button,
   } from "@tremor/react";
+import {useRouter} from 'next/navigation';
+import {useEffect, useState} from 'react';
   
   const colors = {
     "Ready for dispatch": "gray",
@@ -18,96 +22,54 @@ import {
     "💙 ethereum": "blue"
   };
   
-  const transactions = [
-    // Your existing first transaction already has a transactionHash key
-    {
-      transactionHash: "0x23456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
-      user: "Lena Mayer",
-      item: "Under Armour Shorts",
-      status: "💛 celo",
-      amount: "$ 49.90",
-      link: "#",
-    },
-    // The rest of the transactions need to be updated
-    {
-      transactionHash: "0x23456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
-      user: "Max Smith",
-      item: "Book - Wealth of Nations",
-      status: "💙 ethereum",
-      amount: "$ 19.90",
-      link: "#",
-    },
-    {
-      transactionHash: "0x3456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012",
-      user: "Anna Stone",
-      item: "Garmin Forerunner 945",
-      status: "💙 ethereum",
-      amount: "$ 499.90",
-      link: "#",
-    },
-    {
-      transactionHash: "0x4567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
-      user: "Truls Cumbersome",
-      item: "Running Backpack",
-      status: "💜 polygon",
-      amount: "$ 89.90",
-      link: "#",
-    },
-    {
-      transactionHash: "0x5678901abcdef0123456789abcdef0123456789abcdef0123456789abcdef012",
-      user: "Peter Pikser",
-      item: "Rolex Submariner Replica",
-      status: "💛 celo",
-      amount: "$ 299.90",
-      link: "#",
-    },
-    {
-      transactionHash: "0x6789012abcdef0123456789abcdef0123456789abcdef0123456789abcdef012",
-      user: "Phlipp Forest",
-      item: "On Clouds Shoes",
-      status: "💜 polygon",
-      amount: "$ 290.90",
-      link: "#",
-    },
-    {
-      transactionHash: "0x78901234abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
-      user: "Mara Pacemaker",
-      item: "Ortovox Backpack 40l",
-      status: "💜 polygon",
-      amount: "$ 150.00",
-      link: "#",
-    },
-    {
-      transactionHash: "0x89012345abcdef0123456789abcdef0123456789abcdef0123456789abcdef012",
-      user: "Sev Major",
-      item: "Oakley Jawbreaker",
-      status: "💙 ethereum",
-      amount: "$ 190.90",
-      link: "#",
-    },
-  ];  
-  
   export default function TransactionsTable() {
+    const [transactions, setTransactions] = useState([])
+    const router = useRouter();
+
+    const getTransactions = () => {
+        fetch('/api/transactions', {
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }).then((r) => {
+            r.json().then((result) => {
+                console.log(result)
+                setTransactions(result.data)
+                return result
+            })
+          })
+    }
+
+    useEffect(() => {
+        getTransactions()
+    }, [])
+
+    function forwardToDetails(chain, transactionHash) {
+        router.push(`/account-abstraction/${chain}/0x${transactionHash}`);
+    }
+
     return (
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell>Transaction ID</TableHeaderCell>
-              <TableHeaderCell>chain</TableHeaderCell>
+            <TableHeaderCell>Timestamp</TableHeaderCell>
+              <TableHeaderCell>Transaction Hash</TableHeaderCell>
+              <TableHeaderCell>Chain</TableHeaderCell>
               <TableHeaderCell>Explore</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.map((item) => (
-              <TableRow key={item.transactionHash}>
-                <TableCell>{item.transactionHash}</TableCell>
+            {transactions.map((item: any) => (
+              <TableRow key={item.hash}>
+                <TableCell>{new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()}</TableCell>
+                <TableCell>{`0x${item.hash}`}</TableCell>
                 <TableCell>
-                  <Badge color={colors[item.status]} size="xs">
-                    {item.status}
+                  <Badge color={colors[item.chain]} size="xs">
+                    {item.chain}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Button size="xs" variant="secondary" color="gray">
+                  <Button size="xs" variant="secondary" color="gray" onClick={() => forwardToDetails(item.chain === "Ethereum Mainnet" ? 'ethereum' : item.chain, item.hash)}>
                     expand
                   </Button>
                 </TableCell>
