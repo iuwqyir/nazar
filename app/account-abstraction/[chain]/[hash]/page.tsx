@@ -1,7 +1,7 @@
 "use client"
 import { FC, useEffect, useState } from 'react';
 import { MdContentCopy, MdCheckCircle } from 'react-icons/md';
-import { Card, Subtitle, Text, Title, Flex, Grid } from '@tremor/react';
+import { Card, Subtitle, Text, Title, Flex, Grid, Metric } from '@tremor/react';
 import Loader from 'app/components/loader';
 import { AccountAbstractionData, Chain, ERC4337Data, SafeData, TransactionError } from 'lib/types';
 import React from 'react'
@@ -11,6 +11,7 @@ import TransactionFlow from 'app/components/transactionFlow';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 import Visualization from './visualization'
 import { shortenHex } from 'lib/util';
+import DetailsWidget from 'app/components/DetailsWidget';
 
 type PageProps = {
   params: {
@@ -95,6 +96,13 @@ export default function Page({ params: { chain, hash } }: PageProps) {
 
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
+      <div className="pb-5">
+        <DetailsWidget
+          type={data.detectionResult.type.toUpperCase()}
+          status= {(<StatusHeader error={data.errorData} isWarning={data.innerOperationFailed}/>)}
+          fee={(<Metric className={`${BigNumber.from(data.erc4337?.bundlerCompensation || 0).isNegative() ? 'text-red-600' : ''}`}>{formatUSD(data.erc4337?.bundlerCompensationInUSD || data.feeInUSD)}</Metric>)}
+        />
+      </div>
       <Grid numItemsSm={2} numItemsLg={2} className="gap-6">
         {/* Existing Card */}
         <Card key="transaction">
@@ -122,15 +130,22 @@ export default function Page({ params: { chain, hash } }: PageProps) {
           </Flex>
           <Flex className="mt-3">
             <Text>Type</Text>
-            <Text className="text-right">{data.detectionResult.type.toUpperCase()}</Text>
+            <Text className="text-right">
+              {data.detectionResult.type.toUpperCase()}
+            </Text>
           </Flex>
           <Flex className="mt-3">
             <Text>Time</Text>
-            <Text className="text-right">{formatDistanceToNowStrict(data.timestamp)} ago</Text>
+            <Text className="text-right">
+              {formatDistanceToNowStrict(data.timestamp)} ago
+            </Text>
           </Flex>
           <Flex className="mt-3">
             <Text>Status</Text>
-            <Status error={data.errorData} isWarning={data.innerOperationFailed} />
+            <Status
+              error={data.errorData}
+              isWarning={data.innerOperationFailed}
+            />
           </Flex>
           <Flex className="mt-3">
             <Text>Gas Used</Text>
@@ -138,11 +153,16 @@ export default function Page({ params: { chain, hash } }: PageProps) {
           </Flex>
           <Flex className="mt-3">
             <Text>Gas Price</Text>
-            <Text className="text-right">{ethers.utils.formatUnits(data.transaction.gasPrice, 'gwei')} gwei</Text>
+            <Text className="text-right">
+              {ethers.utils.formatUnits(data.transaction.gasPrice, 'gwei')} gwei
+            </Text>
           </Flex>
           <Flex className="mt-3">
             <Text>Transaction Fee</Text>
-            <Text className="text-right">{ethers.utils.formatEther(data.fee)} {data.chain.currency} {data.feeInUSD && ` (${formatUSD(data.feeInUSD)})`}</Text>
+            <Text className="text-right">
+              {ethers.utils.formatEther(data.fee)} {data.chain.currency}{' '}
+              {data.feeInUSD && ` (${formatUSD(data.feeInUSD)})`}
+            </Text>
           </Flex>
         </Card>
         <ERC4337Component data={data.erc4337} chain={data.chain} />
@@ -150,12 +170,16 @@ export default function Page({ params: { chain, hash } }: PageProps) {
       </Grid>
       <Visualization data={data} />
       <Card className="mt-8">
-              <Title>Interaction Flow</Title>
-          <ParentSize>
-            {({ width, height }) => (
-              <TransactionFlow width={width - 10} height={700} data={renameKeys(data.trace)}/>
-            )}
-          </ParentSize>
+        <Title>Interaction Flow</Title>
+        <ParentSize>
+          {({ width, height }) => (
+            <TransactionFlow
+              width={width - 10}
+              height={700}
+              data={renameKeys(data.trace)}
+            />
+          )}
+        </ParentSize>
       </Card>
     </main>
   );
@@ -253,6 +277,20 @@ const Status: FC<{ error?: TransactionError, isWarning: boolean }> = ({ error, i
     <Text className={`text-right ${className}`}>{text}</Text>
   )
 }
+
+const StatusHeader: FC<{ error?: TransactionError, isWarning: boolean }> = ({ error, isWarning }) => {
+    let className = 'text-green-600', text = 'Success'
+    if (error) {
+      text = `Reverted`
+      className = 'text-red-600'
+    } else if (isWarning) {
+      text = 'Success'
+      className = 'text-yellow-600'
+    }
+    return (
+      <Metric className={`${className}`}>{text}</Metric>
+    )
+  }
 
 const CopyToClipboardText = ({ text }) => {
   const [copied, setCopied] = useState(false);
