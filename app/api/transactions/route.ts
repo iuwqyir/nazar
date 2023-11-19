@@ -5,7 +5,7 @@ export async function GET(request: Request): Promise<Response> {
     const supabaseKey = process.env.SUPABASE_KEY || 'none'
     const supabase = createClient(SUPABASE_URL, supabaseKey);
 
-    let { data: transactions, error } = await supabase.from('transactions').select('*')
+    let { data: transactions, error } = await supabase.from('transactions').select('*').order('timestamp', { ascending: false })
 
     if (error) {
         console.log(error)
