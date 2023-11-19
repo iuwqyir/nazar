@@ -87,7 +87,8 @@ export default function TransactionFlow({
   }
 
   const getStrokeWith = (number, treeLength) => {
-    const correctedWidth = treeLength > 20 ? number * 10 : number * 100
+    let correctedWidth = treeLength > 20 ? number * 10 : number * 100
+    if (treeLength < 10 ) correctedWidth = correctedWidth / 10
 
     return correctedWidth
   }
