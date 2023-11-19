@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Group } from '@visx/group';
 import { hierarchy, Tree } from '@visx/hierarchy';
 import { LinearGradient } from '@visx/gradient';
-import { pointRadial } from 'd3-shape';
 import useForceUpdate from './useForceUpdate';
-import LinkControls from './LinkControls';
 import getLinkComponent from './getLinkComponent';
+
 
 interface TreeNode {
   name: string;
@@ -60,28 +59,44 @@ export default function TransactionFlow({
     }
   }
 
-  const getStrokeColor = (node: any, index: any) => {
-    // console.log('🍊', node.source.data.name)
-    // console.log(checkForError(node))
-    // return checkForError(node)
+  const getStrokeColor = (tree: any, node) => {
+    if (tree?.data?.error) return 'red'
 
-    // checkForError(node); // Add parent references
+    return node?.source?.data?.error ? 'red' : '#35A29F'
+  }
 
-    // return checkForError(node);
-    // if (node.source.data.error || node.source.data.parent?.data?.error) return 'red'
-    // if (node.source.data.revertReason || node.source.data.parent?.data?.revertReason) return 'red'
-    // let tmpIndex = index
-    // // while (tmpIndex > 0) {
-    //     // if (data.children[tmpIndex].data.error) return 'red'
-    // // }
-    return 'black'
+  const getFillFromType = (type: string, tree, node) => {
+
+    if (getStrokeColor(tree, node) === 'red') return 'red'
+    // const fillColors = {
+    //     CALL: 'blue',
+    //     DELEGATECALL: 'black',
+    //     FORWARDCALL: 'green',
+    //     STATICCALL: 'red',
+    //     CREATE2: 'black'
+    // }
+    const fillColors = {
+        CALL: 'blue',        // Medium blue
+        DELEGATECALL: '#00bfa0', // Dark gray
+        FORWARDCALL: '#32CD32',  // Lime green
+        STATICCALL: '#9b19f5',   // Purple
+        CREATE2: '#000000'       // Black
+    };
+    
+    return fillColors[type]
+  }
+
+  const getStrokeWith = (number, treeLength) => {
+    const correctedWidth = treeLength > 20 ? number * 10 : number * 100
+
+    return correctedWidth
   }
 
   const LinkComponent = getLinkComponent({ layout, linkType, orientation });
 
   return totalWidth < 10 ? null : (
     <div>
-      <LinkControls
+      {/* <LinkControls
         layout={layout}
         orientation={orientation}
         linkType={linkType}
@@ -90,8 +105,8 @@ export default function TransactionFlow({
         setOrientation={setOrientation}
         setLinkType={setLinkType}
         setStepPercent={setStepPercent}
-      />
-      <svg width={totalWidth} height={totalHeight}>
+      /> */}
+      <svg width={totalWidth + 10} height={totalHeight}>
         <LinearGradient id="links-gradient" from="#fd9b93" to="#fe6e9e" />
         <rect width={totalWidth} height={totalHeight} rx={14} fill="#fff" />
         <Group top={margin.top} left={margin.left}>
@@ -107,53 +122,43 @@ export default function TransactionFlow({
                       key={i}
                       data={link}
                       percent={stepPercent}
-                    //   stroke={getStrokeColor(h[i], i)}
-                    stroke='black'
-                      strokeWidth={h[i].source.data.gasParsed / 100000}
+                      stroke={getStrokeColor(tree, h[i])}
+                      strokeWidth={getStrokeWith(h[i].target.data.gasParsed / tree.data.gasParsed, h.length)}
                       fill="none"
                     />)
                 })}
 
-                {tree.descendants().map((node, key) => {
-                  const width = 40;
-                  const height = 20;
-
-                  let top: number;
-                  let left: number;
-                  if (layout === 'polar') {
-                    const [radialX, radialY] = pointRadial(node.x, node.y);
-                    top = radialY;
-                    left = radialX;
-                  } else if (orientation === 'vertical') {
-                    top = node.y;
-                    left = node.x;
-                  } else {
-                    top = node.x;
-                    left = node.y;
-                  }
+                {tree.descendants().map((node, key, h) => {
+                  const width = 80;
+                  const height = 25;
+                  let top: number = node.x;
+                  let left: number = node.y;
 
                   return (
                     <Group top={top} left={left} key={key}>
                       {node.depth === 0 && (
                         <circle
-                          r={12}
+                          r={22}
                           fill="url('#links-gradient')"
                           onClick={() => {
                             node.data.isExpanded = !node.data.isExpanded;
-                            console.log(node);
                             forceUpdate();
                           }}
+                          onMouseOver={() => {
+                            console.log('show tooltip here')
+                          }}
                         />
-                      )}
+                        )}
                       {node.depth !== 0 && (
-                        <rect
+                          <rect
                           height={height}
                           width={width}
                           y={-height / 2}
                           x={-width / 2}
                           fill="#fff"
-                          stroke={node.data.children ? '#03c0dc' : '#26deb0'}
-                        //   strokeWidth={node.data.gasParsed / 100000}
+                          //   stroke={node.data.children ? '#03c0dc' : '#26deb0'}
+                          stroke={getFillFromType(node.data.type, tree, node)}
+                          //   strokeWidth={node.data.gasParsed / 100000}
                           strokeWidth={1}
                           strokeDasharray={node.data.children ? '0' : '2,2'}
                           strokeOpacity={node.data.children ? 1 : 0.6}
@@ -168,16 +173,10 @@ export default function TransactionFlow({
                           <text
                             dy=".33em"
                             fontSize={9}
-                            fontFamily="Arial"
+                            // fontFamily="Arial"
                             textAnchor="middle"
                             style={{ pointerEvents: 'none' }}
-                            fill={
-                              node.depth === 0
-                                ? '#71248e'
-                                : node.children
-                                ? 'black'
-                                : '#26deb0'
-                            }
+                            fill={getFillFromType(node.data.type, tree, node)}
                           >
                             {node.data.type}
                           </text>

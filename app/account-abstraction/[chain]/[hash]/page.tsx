@@ -153,7 +153,7 @@ export default function Page({ params: { chain, hash } }: PageProps) {
               <Title>Interaction Flow</Title>
           <ParentSize>
             {({ width, height }) => (
-              <TransactionFlow width={width} height={500} data={renameKeys(data.trace)}/>
+              <TransactionFlow width={width - 10} height={700} data={renameKeys(data.trace)}/>
             )}
           </ParentSize>
       </Card>
