@@ -73,4 +73,13 @@ export const chains: { [key: string]: Chain } = {
     providerEndpoint: process.env.GNOSIS_PROVIDER_ENDPOINT!,
     currency: 'XDAI'
   },
+  mantle: {
+    name: 'mantle',
+    explorerUrl: 'https://mantlescan.info',
+    explorerApiUrl: 'https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan/api',
+    explorerApiKey: process.env.MANTLE_API_KEY!,
+    safeApiUrl: '',
+    providerEndpoint: process.env.MANTLE_PROVIDER_ENDPOINT!,
+    currency: 'MNT'
+  }
 };
