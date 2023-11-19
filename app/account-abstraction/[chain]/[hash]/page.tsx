@@ -162,7 +162,7 @@ export default function Page({ params: { chain, hash } }: PageProps) {
             <Text>Transaction Fee</Text>
             <Text className="text-right">
               {ethers.utils.formatEther(data.fee)} {data.chain.currency}{' '}
-              {data.feeInUSD && ` (${formatUSD(data.feeInUSD)})`}
+              {data.feeInUSD ? ` (${formatUSD(data.feeInUSD)})` : ''}
             </Text>
           </Flex>
         </Card>
