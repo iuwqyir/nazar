@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import React from 'react';
 import { 
     Button,
+    Grid,
+    Col,
     Flex,
     Text,
     Title,
@@ -13,6 +15,7 @@ import {
     AccordionBody,
     Icon,
     Badge,
+    Metric,
     NumberInputProps,
     TextInput,
     Switch} from '@tremor/react';
@@ -24,7 +27,7 @@ import {
   useInitWeb3InboxClient,
   useManageSubscription,
   useW3iAccount,
-  useSubscription,
+  useSubscriptionScopes,
   useMessages
 } from "@web3inbox/widget-react";
 import "@web3inbox/widget-react/dist/compiled.css";
@@ -81,9 +84,12 @@ export default function InboxPage() {
     } = useManageSubscription(account);
     const [comment, setComment] = useState('');
     const [messageID, setMessageID] = useState('');
+    const [noOfAlerts, setNoOfAlerts] = useState(0);
+    const [noOfWarnings, setNoOfWarnings] = useState(0);
+    const [noOfInfos, setNoOfInfos] = useState(0);
 
     const {messages, deleteMessage } = useMessages(account)
-    console.log(messages)
+    const { scopes, updateScopes } = useSubscriptionScopes(account)
     
     const { signer } = useWeb3ModalSigner()
     const { address } = useWeb3ModalAccount()
@@ -109,7 +115,14 @@ export default function InboxPage() {
     useEffect(() => {
         if (!Boolean(address)) return;
         setAccount(`eip155:1:${address}`);
-    }, [address, setAccount]);
+        const alertMessages = messages.filter(message => message.message?.type === 'fe8b4821-0e89-4b73-82ab-e9bbc484ac1a');
+        setNoOfAlerts(alertMessages.length);
+        const warningMessages = messages.filter(message => message.message?.type === '71a900cb-d41c-4b52-939e-3177d75f32c8');
+        setNoOfWarnings(warningMessages.length)
+        const infoMessages = messages.filter(message => message.message?.type === '30e53997-1fa5-498f-bf10-3a93c01f6a09');
+        setNoOfInfos(infoMessages.length)
+
+    }, [address, setAccount, messages, scopes, setNoOfAlerts, setNoOfWarnings, setNoOfInfos]);
 
     const handleRegistration = useCallback(async () => {
         if (!account) return;
@@ -126,6 +139,25 @@ export default function InboxPage() {
             deleteMessage(id);
 
     }, [address, deleteMessage])
+
+    const handleSwitchChange = useCallback(
+        async (messageType: string) => {
+            if (!Boolean(address)) return;
+
+            const scopesArray = Object.values(scopes);
+
+            let newScopesArray = scopesArray
+            .filter(scope => scope.id !== messageType)  // Exclude the current scope
+            .filter(scope => scope.enabled)
+            .map(scope => scope.id); 
+
+            if (!scopes[messageType].enabled) {
+                newScopesArray.push(messageType);
+            }
+            console.log(newScopesArray)
+            updateScopes(newScopesArray);
+
+    }, [address, scopes, updateScopes])
 
     const handleCopyToClipboard = async (id: number) => {
     try {
@@ -150,145 +182,185 @@ export default function InboxPage() {
 
 
     return (
-    <main className="p-4 md:p-10 mx-auto max-w-7xl">
-        {/* <div className="flex flex-col items-center justify-center">
-            <h1 className="text-9xl font-extrabold text-blue-900 mb-4">🧿</h1>
-        </div> */}
+    <main className="p-2 md:p-4 mx-auto max-w-7xl">
         <div>
         <Flex flexDirection="col">
-        { !identityKey ? (
-                <Flex flexDirection={"col"} alignItems="center">
-                    <Text> Please register to use Nazar with Web3Inbox </Text>
-                    <Button 
-                    onClick={handleRegistration}
-                    disabled={!isW3iInitialized || !account}
-                    loading={isRegistering}
-                    loadingText="Registering..."
-                    icon={BoltIcon}> 
-                    Register
-                </Button>
-                </Flex>
-            ) : (
-                <Flex flexDirection="col">
-                    {isSubscribed ? (
-                    <Flex flexDirection={"col"} alignItems="center">
-                        <Button 
-                            onClick={unsubscribe}
-                            disabled={!isW3iInitialized || !account}
-                            loading={isUnsubscribing}
-                            loadingText="Unsubscribing..."
-                            icon={BellSlashIcon}
-                            color='gray'
-                            variant="secondary"> 
-                            Unsubscribe
-                        </Button>
+        </Flex>
+        <Grid numItems={1} numItemsSm={2} numItemsLg={2} className="gap-x-2" >
+            <Col className="flex flex-col space-y-2">
+                {/*stats */}
+                <Card className="h-1/4">
+                    <Flex justifyContent="start">
+                        <Icon color='zinc' icon={BellIcon}/>
+                        <Text className="w-1/3">Total notifications received</Text> 
+                        <Flex justifyContent="end" className="w-1/3">
+                            <Metric>{messages?.length}</Metric>
+                        </Flex>
                     </Flex>
-                    ) : (
-                        <Button
-                            onClick={subscribe}
+                    <Flex justifyContent="start">
+                        <Icon color='red' icon={FireIcon}/>
+                        <Text className="w-1/3">Severe alerts received</Text>
+                        <Flex justifyContent="end" className="w-1/3">
+                            <Metric>{noOfAlerts}</Metric>
+                        </Flex>
+                    </Flex>
+                    <Flex justifyContent="start">
+                        <Icon color='orange' icon={ExclamationTriangleIcon}/>
+                        <Text className="w-1/3">Warnings received</Text> 
+                        <Flex justifyContent="end" className="w-1/3">
+                            <Metric>{noOfWarnings}</Metric>
+                        </Flex>
+                    </Flex>
+                    <Flex justifyContent="start">
+                        <Icon color='blue' icon={InformationCircleIcon}/>
+                        <Text className="w-1/3">Infos received</Text> 
+                        <Flex justifyContent="end" className="w-1/3">
+                            <Metric>{noOfInfos}</Metric>
+                        </Flex>
+                    </Flex>
+                </Card>
+                {/*alerts, warning and infos*/}
+                <Card className="h-3/4">
+                    <Title>
+                        <Icon size="md" color="red" icon={BellIcon} />
+                        Latest notifications
+                    </Title>
+                    <AccordionList className="h-5/6">
+                        {!messages?.length ? (
+                            <Accordion><Text>No messages yet.</Text></Accordion>
+                        ) : (
+                            // Use filter to get messages of type
+                            // alert: fe8b4821-0e89-4b73-82ab-e9bbc484ac1a
+                            // warning: 71a900cb-d41c-4b52-939e-3177d75f32c8
+                            // info: 30e53997-1fa5-498f-bf10-3a93c01f6a09
+                            messages
+                            .filter(message => message.message?.type === 'fe8b4821-0e89-4b73-82ab-e9bbc484ac1a' || message.message?.type === '71a900cb-d41c-4b52-939e-3177d75f32c8'  || message.message?.type === '30e53997-1fa5-498f-bf10-3a93c01f6a09')
+                            .sort((a, b) => b.id - a.id)
+                            .slice(0, 5)
+                            .map(({ id, message, publishedAt }) => (
+                                <Accordion key={id} className="flex flex-col items-center justify-between">
+                                    <AccordionHeader className="flex flex-row items-center">
+                                        <Icon color={message.type == undefined ? 'gray' : messageIcons[message.type]["iconColor"]} icon={message.type == undefined ? BellIcon : messageIcons[message.type]["icon"]} />
+                                        <Badge size="xs" className="ml-5" color={message.type == undefined ? 'gray' : messageIcons[message.type]["iconColor"]}>{message.type == undefined ? null : messageIcons[message.type]["type"]}</Badge>
+                                        <Text className="ml-5"> {message.title}</Text>
+                                        <Text className="ml-5"> {new Date(publishedAt).toLocaleString('en-US')}</Text>
+                                    </AccordionHeader>
+                                    <AccordionBody className="flex flex-row  items-center justify-between">
+                                        <Button onClick={() => handleCopyToClipboard(id)} className="ml-2" variant='secondary' size = "xs" icon={ClipboardIcon}> Copy Message ID</Button>
+                                        <Link href={message.url}>
+                                                <Button size="xs" variant='secondary' icon={ArrowUpRightIcon}> Open analyzer</Button>
+                                        </Link>
+                                        <Button onClick={() => handleDeletion(id)} variant='secondary' size = "xs" icon={XCircleIcon} color='gray'> Mark irrelevant</Button>
+                                    </AccordionBody>
+                                </Accordion>
+                            ))
+                        )}
+                    </AccordionList>
+                </Card>
+
+            </Col>
+            {/*Preferences*/}
+            <Col className="flex flex-col space-y-2">
+                <Card className="h-1/4">
+                    <Title>Preferences</Title>
+                    <Text> Toggle the switches to turn specific notifications on and off</Text>
+                    <Flex justifyContent="start" className="mt-3 mb-3">
+                        <Switch id="alertswitch" checked={isSubscribed && scopes['fe8b4821-0e89-4b73-82ab-e9bbc484ac1a'].enabled ? true : false} disabled={!isW3iInitialized || !account || !isSubscribed ? true : false} name="alertswitch" onChange={() => handleSwitchChange('fe8b4821-0e89-4b73-82ab-e9bbc484ac1a')}/>
+                        <label htmlFor="alertswitch" className="text-sm text-gray-500 mr-5">Alerts</label>
+                        <Switch id="warningswitch" checked={isSubscribed && scopes['71a900cb-d41c-4b52-939e-3177d75f32c8'].enabled ? true : false} disabled={!isW3iInitialized || !account || !isSubscribed ? true : false} name="warningswitch" onChange={() => handleSwitchChange('71a900cb-d41c-4b52-939e-3177d75f32c8')}/>
+                        <label htmlFor="warningswitch" className="text-sm text-gray-500 mr-5">Warnings</label>
+                        <Switch id="infoswitch" checked={isSubscribed && scopes['30e53997-1fa5-498f-bf10-3a93c01f6a09'].enabled ? true : false} disabled={!isW3iInitialized || !account || !isSubscribed ? true : false} name="infoswitch" onChange={() => handleSwitchChange('30e53997-1fa5-498f-bf10-3a93c01f6a09')}/>
+                        <label htmlFor="infoswitch" className="text-sm text-gray-500 mr-5">Infos</label>
+                        <Switch id="communityswitch" checked={isSubscribed && scopes['5c4db383-3c63-4320-81cb-e421cf0e8727'].enabled ? true : false} disabled={!isW3iInitialized || !account || !isSubscribed ? true : false} name="communityswitch" onChange={() => handleSwitchChange('5c4db383-3c63-4320-81cb-e421cf0e8727')}/>
+                        <label htmlFor="communityswitch" className="text-sm text-gray-500 mr-5">Comments</label>
+                    </Flex>
+                    {!identityKey ? (
+                        <Button 
+                            onClick={handleRegistration}
                             disabled={!isW3iInitialized || !account}
-                            loading={isSubscribing}
-                            loadingText="Subscribing..."
-                            icon={BellIcon}
-                        >
-                            Subscribe
+                            loading={isRegistering}
+                            loadingText="Registering..."
+                            icon={BoltIcon}> 
+                            Register
                         </Button>
-                    )}
-                </Flex>
-            )
-
-            }
-        </Flex>
-        <Flex alignItems='stretch' justifyContent='between' className="p-4 mt-5 items-start">
-            {/* First Card  are the alerts, warning and infos*/}
-            <Card>
-                <Title>
-                    <Icon size="md" color="red" icon={BellIcon} />
-                    Latest notifications
-                </Title>
-                <AccordionList className="h-80">
-                    {!messages?.length ? (
-                        <Accordion><Text>No messages yet.</Text></Accordion>
-                    ) : (
-                        // Use filter to get messages of type
-                        // alert: fe8b4821-0e89-4b73-82ab-e9bbc484ac1a
-                        // warning: 71a900cb-d41c-4b52-939e-3177d75f32c8
-                        // info: 30e53997-1fa5-498f-bf10-3a93c01f6a09
-                        messages
-                        .filter(message => message.message?.type === 'fe8b4821-0e89-4b73-82ab-e9bbc484ac1a' || message.message?.type === '71a900cb-d41c-4b52-939e-3177d75f32c8'  || message.message?.type === '30e53997-1fa5-498f-bf10-3a93c01f6a09')
-                        .sort((a, b) => b.id - a.id)
-                        .slice(0, 5)
-                        .map(({ id, message, publishedAt }) => (
-                            <Accordion key={id} className="flex flex-col items-center justify-between">
-                                <AccordionHeader className="flex flex-row items-center">
-                                    <Icon color={message.type == undefined ? 'gray' : messageIcons[message.type]["iconColor"]} icon={message.type == undefined ? BellIcon : messageIcons[message.type]["icon"]} />
-                                    <Badge size="xs" className="ml-5" color={message.type == undefined ? 'gray' : messageIcons[message.type]["iconColor"]}>{message.type == undefined ? null : messageIcons[message.type]["type"]}</Badge>
-                                    <Text className="ml-5"> {message.title}</Text>
-                                    <Text className="ml-5"> {new Date(publishedAt).toLocaleString('en-US')}</Text>
-                                </AccordionHeader>
-                                <AccordionBody className="flex flex-row  items-center justify-between">
-                                    <Button onClick={() => handleCopyToClipboard(id)} className="ml-2" variant='secondary' size = "xs" icon={ClipboardIcon}> Copy Message ID</Button>
-                                    <Link href={message.url}>
-                                            <Button size="xs" variant='secondary' icon={ArrowUpRightIcon}> Open analyzer</Button>
-                                    </Link>
-                                    <Button onClick={() => handleDeletion(id)} variant='secondary' size = "xs" icon={XCircleIcon} color='gray'> Mark irrelevant</Button>
-                                </AccordionBody>
-                            </Accordion>
-                        ))
-                    )}
-                </AccordionList>
-            </Card>
-            {/* Second Card is the community chat */}
-            <Card>
-                <Title>
-                    <Icon size="md" color="blue" icon={ChatBubbleOvalLeftEllipsisIcon} />
-                    Latest comments on transactions
-                </Title>
-                <AccordionList className="h-80">
-                    {!messages?.length ? (
-                        <Accordion><Text>No messages yet.</Text></Accordion>
-                    ) : (
-                        // Use filter to get messages of type
-                        // community: 5c4db383-3c63-4320-81cb-e421cf0e8727
-                        messages
-                        .filter(message => message.message?.type === '5c4db383-3c63-4320-81cb-e421cf0e8727')
-                        .sort((a, b) => b.id - a.id)
-                        .slice(0, 5)
-                        .map(({ id, message }) => (
-                            <Accordion key={id} className="flex flex-col items-center justify-center">
-                                <AccordionHeader className="flex items-center space-x-2">
-                                    <Text>{message.body}</Text>
-                                </AccordionHeader>
-                                <AccordionBody>
-                                    <div>{messages[0].message.title} </div>
-                                </AccordionBody>
-                            </Accordion>
-                        ))
-                    )}
-                </AccordionList>
-                <form className="flex flex-col mt-5">
-                    <div>
-                        <TextInput placeholder="Start writing (max 200 char)"
-                        onChange={(e) => setComment(e.target.value)}
-                        maxLength={200} />
-                    </div>
-                    <div className="flex flex-row">
-                        <TextInput 
-                        placeholder="Insert message ID to comment on" 
-                        onChange={(e) => setMessageID(e.target.value)}/>
-                        <Button onClick={() => handleComment(messageID, comment)}>Comment</Button>
-                    </div>
+                        ) : ( 
+                            <Flex flexDirection="col">
+                                {isSubscribed ? (
+                                <Flex flexDirection={"col"} alignItems="start">
+                                    <Button 
+                                        onClick={unsubscribe}
+                                        disabled={!isW3iInitialized || !account}
+                                        loading={isUnsubscribing}
+                                        loadingText="Unsubscribing..."
+                                        icon={BellSlashIcon}
+                                        color='red'
+                                        variant="secondary"> 
+                                        Unsubscribe all
+                                    </Button>
+                                </Flex> 
+                                ) :(
+                                    <Flex flexDirection={"col"} alignItems="start">
+                                        <Button
+                                            onClick={subscribe}
+                                            disabled={!isW3iInitialized || !account}
+                                            loading={isSubscribing}
+                                            loadingText="Subscribing..."
+                                            icon={BellIcon}
+                                        >
+                                            Subscribe
+                                        </Button>
+                                    </Flex> 
+                                )}
+                            </Flex>
+                        )}
+                </Card>
+                
+                {/*community chat */}
+                <Card className="h-3/4">
+                    <Title>
+                        <Icon size="md" color="blue" icon={ChatBubbleOvalLeftEllipsisIcon} />
+                        Latest comments on transactions
+                    </Title>
+                    <AccordionList className="h-80">
+                        {!messages?.length ? (
+                            <Accordion><Text>No messages yet.</Text></Accordion>
+                        ) : (
+                            // Use filter to get messages of type
+                            // community: 5c4db383-3c63-4320-81cb-e421cf0e8727
+                            messages
+                            .filter(message => message.message?.type === '5c4db383-3c63-4320-81cb-e421cf0e8727')
+                            .sort((a, b) => b.id - a.id)
+                            .slice(0, 5)
+                            .map(({ id, message }) => (
+                                <Accordion key={id} className="flex flex-col items-center justify-center">
+                                    <AccordionHeader className="flex items-center space-x-2">
+                                        <Text>{message.body}</Text>
+                                    </AccordionHeader>
+                                    <AccordionBody>
+                                        <div>{messages[0].message.title} </div>
+                                    </AccordionBody>
+                                </Accordion>
+                            ))
+                        )}
+                    </AccordionList>
+                    <form className="flex flex-col mt-5">
+                        <div className="p-2">
+                            <TextInput placeholder="Start writing (max 200 char)"
+                            onChange={(e) => setComment(e.target.value)}
+                            maxLength={200} />
+                        </div>
+                        <div className="flex flex-row p-2 space-between">
+                            <TextInput 
+                            placeholder="Insert message ID to comment on" 
+                            onChange={(e) => setMessageID(e.target.value)}/>
+                            <Button onClick={() => handleComment(messageID, comment)} className="ml-2">Comment</Button>
+                        </div>
 
 
-                </form>
-            </Card>
-            <Card>
-                <Flex>
-                    <Button> Unsubscribe all button</Button>
-                    <Switch> Toggle Switch for preferences</Switch>
-                </Flex>
-            </Card>
-        </Flex>
+                    </form>
+                </Card>             
+                </Col>
+        </Grid>
         </div>
     </main>
     )
