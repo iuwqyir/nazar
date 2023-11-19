@@ -6,6 +6,7 @@ import {
   CheckCircleIcon,
   ArrowNarrowRightIcon,
 } from "@heroicons/react/solid";
+import SubscribeButton from "./subscribeButton";
 
 const categories = [
   {
@@ -54,6 +55,7 @@ export default function DetailsWidget({ type, status, fee, feesTitle }) {
         <Card key='type'>
           <Text>Type</Text>
           <Metric>{type}</Metric>
+          <SubscribeButton />
           {/* <Callout
             className="mt-6"
             title={item.status}
