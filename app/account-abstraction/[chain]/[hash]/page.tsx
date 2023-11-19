@@ -101,6 +101,7 @@ export default function Page({ params: { chain, hash } }: PageProps) {
           type={data.detectionResult.type.toUpperCase()}
           status= {(<StatusHeader error={data.errorData} isWarning={data.innerOperationFailed}/>)}
           fee={(<Metric className={`${BigNumber.from(data.erc4337?.bundlerCompensation || 0).isNegative() ? 'text-red-600' : ''}`}>{formatUSD(data.erc4337?.bundlerCompensationInUSD || data.feeInUSD)}</Metric>)}
+          feesTitle={data.erc4337 ? `Bundler Fees` : `Transaction Fees`}
         />
       </div>
       <Grid numItemsSm={2} numItemsLg={2} className="gap-6">

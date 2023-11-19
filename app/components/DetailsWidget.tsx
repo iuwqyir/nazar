@@ -44,9 +44,10 @@ type DetailsWidgetProps = {
     type: string;
     status: string;
     fees: string;
+    feesTitle: string
   };
 
-export default function DetailsWidget({ type, status, fee }) {
+export default function DetailsWidget({ type, status, fee, feesTitle }) {
   return (
     <Grid numItemsSm={3} className="gap-6">
       {/* {categories.map((item) => ( */}
@@ -68,7 +69,7 @@ export default function DetailsWidget({ type, status, fee }) {
           </Flex> */}
         </Card>
         <Card key='Fees'>
-          <Text>Fees</Text>
+          <Text>{feesTitle}</Text>
           <Metric>{fee}</Metric>
           {/* <Callout
             className="mt-6"
