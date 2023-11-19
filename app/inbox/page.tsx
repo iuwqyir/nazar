@@ -236,7 +236,7 @@ export default function InboxPage() {
                             messages
                             .filter(message => message.message?.type === 'fe8b4821-0e89-4b73-82ab-e9bbc484ac1a' || message.message?.type === '71a900cb-d41c-4b52-939e-3177d75f32c8'  || message.message?.type === '30e53997-1fa5-498f-bf10-3a93c01f6a09')
                             .sort((a, b) => b.id - a.id)
-                            .slice(0, 5)
+                            .slice(0, 7)
                             .map(({ id, message, publishedAt }) => (
                                 <Accordion key={id} className="flex flex-col items-center justify-between">
                                     <AccordionHeader className="flex flex-row items-center">
@@ -330,7 +330,7 @@ export default function InboxPage() {
                             messages
                             .filter(message => message.message?.type === '5c4db383-3c63-4320-81cb-e421cf0e8727')
                             .sort((a, b) => b.id - a.id)
-                            .slice(0, 5)
+                            .slice(0, 7)
                             .map(({ id, message }) => (
                                 <Accordion key={id} className="flex flex-col items-center justify-center">
                                     <AccordionHeader className="flex items-center space-x-2">
