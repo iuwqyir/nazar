@@ -21,6 +21,9 @@ export default function RootLayout({
       <html lang="en" className="h-full bg-gray-50">
         <body className="h-full">
           <Web3ModalProvider>
+              <div className="bg-red-600 text-white p-1 text-center">
+                <p>An new version is now available at <a href="https://beta.blocktorch.xyz/account-abstraction">https://beta.blocktorch.xyz</a></p>
+              </div>
               <Suspense>
                 <Nav />
               </Suspense>
