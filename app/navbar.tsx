@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { signIn, signOut } from 'next-auth/react';
-import Image from 'next/image';
+import { FaGithub } from "react-icons/fa";
 
 const navigation = [
   { name: 'Discovery', href: '/' },
@@ -51,6 +51,9 @@ export default function Navbar() {
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
                 <w3m-button />
+                <a href="https://github.com/iuwqyir/nazar" target="_blank" rel="noopener noreferrer" className="ml-2">
+                    <FaGithub className="h-7 w-7 text-gray-500 hover:text-gray-700" />
+                </a>
               </div>
               <div className="-mr-2 flex items-center sm:hidden">
                 <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
